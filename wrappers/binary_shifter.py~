@@ -1,0 +1,28 @@
+import gym
+from gym import Wrapper
+from gym import error, version
+import os, json, logging, numpy as np, six
+
+FILE_PREFIX = 'openaigym'
+MANIFEST_PREFIX = FILE_PREFIX + '.manifest'
+
+class BinaryShifter(Wrapper):
+    def __init__(self, env):
+        super(BinaryShifter, self).__init__(env)
+
+    def _step(self, action):
+        if action[0] == 0.0:
+            act = -1.0
+        else:
+            act = action[0]
+        if not (act == 1.0 or act == -1.0):
+            print ("continuous_cartpole : action = ", action[0])
+        return self.env.step(act)
+ 
+    def _env_info(self):
+        env_info = {
+            'gym_version': version.VERSION,
+        }
+        if self.env.spec:
+            env_info['env_id'] = self.env.spec.id
+        return env_info

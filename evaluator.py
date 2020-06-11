@@ -1,0 +1,73 @@
+import os
+
+import numpy as np
+from itertools import count
+from policies import GenericNet, PolicyWrapper
+from environment import make_env
+
+
+def evaluate_pol(env, policy):
+    scores = []
+    for i in range(900):
+        state = env.reset()
+        # env.render(mode='rgb_array')
+        # print("new episode")
+        total_reward = 0
+
+        for _ in count():
+            action = policy.select_action(state)
+            next_state, reward, done, _ = env.step(action)
+            total_reward += reward
+            state = next_state
+
+            if done:
+                scores.append(total_reward)
+                break
+    scores = np.array(scores)
+    # print("team: ", policy.team_name, "mean: ", scores.mean(), "std:", scores.std())
+    return scores
+
+
+class Evaluator:
+
+    def __init__(self):
+        self.env_dict = {}
+        self.score_dict = {}
+
+
+    def load_policies(self, folder) -> None:
+        """
+         Input :                -folder : name of the folder containing policies
+         Output : none (policies of the folder stored in self.env_dict)        
+         """
+        listdir = os.listdir(folder)
+        for policy_file in listdir:
+            pw = PolicyWrapper(GenericNet(), "", "")
+            policy = pw.load(folder + policy_file)
+
+            if pw.env_name in self.env_dict:
+                env = self.env_dict[pw.env_name]
+                scores = evaluate_pol(env, policy)
+                self.score_dict[pw.env_name][scores.mean()] = [pw.team_name, scores.std()]
+            else:
+                env, _ = make_env(pw.env_name, "bernoulli", ["x", "y"])
+                env.set_reward_flag(False)
+                env.set_duration_flag(False)
+                self.env_dict[pw.env_name] = env
+                scores = evaluate_pol(env, policy)
+                tmp_score_dict = {scores.mean(): [pw.team_name, scores.std()]}
+                self.score_dict[pw.env_name] = tmp_score_dict
+
+    def display_hall_of_fame(self):
+        print("Hall of fame")
+        for k, v in self.score_dict.items():
+            print("Environnement :", k)
+            for k2, v2 in sorted(v.items()):
+                print("team: ", v2[0], "mean: ", k2, "std: ", v2[1])
+
+
+if __name__ == '__main__':
+    directory = os.getcwd() + './data/policies/'
+    ev = Evaluator()
+    ev.load_policies(directory)
+    ev.display_hall_of_fame()
