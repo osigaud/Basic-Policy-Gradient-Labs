@@ -16,7 +16,7 @@ class FeatureInverter(Wrapper):
     A concrete example is CartPole: we would like to visualize position and pole angle, and pole angle
     is only the third feature.
     We specify the rank of two features to be inverted and their place is exchanged in the observation
-    vector output at each step, including reset
+    vector output at each step, including reset.
     """
     def __init__(self, env, f1, f2):
         """

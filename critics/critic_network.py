@@ -1,8 +1,4 @@
 import numpy as np
-import random
-import torch
-import torch.nn as nn
-import torch.nn.functional as func
 from policies import GenericNet
 import torch.utils.data as data
 from torch.utils.data.sampler import SubsetRandomSampler
