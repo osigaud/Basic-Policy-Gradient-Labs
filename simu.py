@@ -1,8 +1,6 @@
 import numpy as np
 from itertools import count
 from batch import Episode, Batch
-import random
-from visu.visu_policies import plot_policy
 from environment import make_env
 
 
@@ -31,7 +29,7 @@ class Simu:
     def reset(self, render):
         state = self.env.reset()
         if render:
-            env.render(mode='rgb_array')
+            self.env.render(mode='rgb_array')
         return state
 
     def take_step(self, state, action, episode, render=False):
@@ -55,37 +53,6 @@ class Simu:
 
             if done:
                 return total_reward
-
-    def perform_expert_episodes(self, batch, render=False):
-        for e in range(20):
-            state = self.reset(render)
-
-            episode = Episode()
-            for t in range(50):
-                coin = random.random() / 20
-                action = [-1.0 + coin]
-                state, reward, done = self.take_step(state, action, episode, render)
-
-            for _ in count():
-                coin = random.random() / 10
-                action = [1.0 - coin]
-                state, reward, done = self.take_step(state, action, episode, render)
-
-                if done:
-                    batch.add_episode(episode)
-                    break
-        return batch
-
-    def regress(self, policy, name, batch_type="RB", render=False) -> None:
-        if batch_type == "RB":
-            batch = ReplayBuffer(10000)
-        else:
-            batch = Batch()
-        batch = perform_expert_episodes(batch, render)
-        # print("size: ", batch.size())
-        batch.train_regress_actor(policy)
-        self.cpt += 1
-        plot_policy(policy, self.env, name, 'no', '_regress_', self.cpt, plot=False)
 
     def perform_one_episode(self, policy, render):
         state = self.reset(render)
