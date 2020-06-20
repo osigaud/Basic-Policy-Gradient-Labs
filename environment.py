@@ -1,4 +1,4 @@
-import gym
+import gym, continuous_cartpole
 import numpy as np
 from wrappers import FeatureInverter, BinaryShifter, ActionAdapter, PerfWriter
 
