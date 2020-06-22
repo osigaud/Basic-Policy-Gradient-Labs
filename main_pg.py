@@ -1,6 +1,6 @@
 # started from Finspire13 /pytorch-policy-gradient-example
 
-import os, continuous_cartpole
+import os
 from chrono import Chrono
 from policies import BernoulliPolicy, NormalPolicy, PolicyWrapper
 from critics import VNetwork, QNetworkContinuous
@@ -155,6 +155,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-"""
-"""

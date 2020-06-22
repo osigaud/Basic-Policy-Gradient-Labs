@@ -40,7 +40,7 @@ class BernoulliPolicy(GenericNet):
         self.optimizer.zero_grad()
         # print(action)
         for i in range(len(action)):
-            act = Variable(torch.FloatTensor(action[i]))
+            act = torch.FloatTensor(action[i])
             # reward = torch.FloatTensor(reward[i]).unsqueeze(1)
             probs = self.forward(state[i])
             m = Bernoulli(probs)
