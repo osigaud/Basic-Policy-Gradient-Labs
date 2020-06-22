@@ -1,11 +1,8 @@
-import gym
 import os
-import numpy as np
-from gym import Wrapper
-from gym import error, version
+import gym
 
 
-class PerfWriter(Wrapper):
+class PerfWriter(gym.Wrapper):
     """
     This wrapper is used to save the performance and episode duration into a file in a transparent way
     Two flags are used to decide if one wants to save respectively performance and episode duration
@@ -69,11 +66,3 @@ class PerfWriter(Wrapper):
         self.duration_file = open(duration_name, "w")
         reward_name = self.directory + "reward_" + name + ".txt"
         self.reward_file = open(reward_name, "w")
-
-    def _env_info(self):
-        env_info = {
-            'gym_version': version.VERSION,
-        }
-        if self.env.spec:
-            env_info['env_id'] = self.env.spec.id
-        return env_info

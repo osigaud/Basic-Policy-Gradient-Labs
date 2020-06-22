@@ -1,9 +1,7 @@
 import gym
-from gym import Wrapper
-from gym import version
 
 
-class BinaryShifter(Wrapper):
+class BinaryShifter(gym.Wrapper):
     """
     This wrapper is used to transform the {0,1} output of a binary policy into the {-1,1} action
     space that most gym environment are expecting
@@ -21,11 +19,3 @@ class BinaryShifter(Wrapper):
         if not (act == 1.0 or act == -1.0):
             print ("binary shifter : action = ", action[0])
         return self.env.step(act)
- 
-    def _env_info(self):
-        env_info = {
-            'gym_version': version.VERSION,
-        }
-        if self.env.spec:
-            env_info['env_id'] = self.env.spec.id
-        return env_info

@@ -1,8 +1,7 @@
 import gym
-from gym import Wrapper
-from gym import version
 
-class ActionAdapter(Wrapper):
+
+class ActionAdapter(gym.Wrapper):
     """
     Some gym environment take a scalar as action input for the step function, others take a vector of size 1
     This wrapper is used so that all environment can be used uniformly as taking a vector of size 1:
@@ -14,11 +13,3 @@ class ActionAdapter(Wrapper):
     def _step(self, action):
         act = action[0]
         return self.env.step(act)
- 
-    def _env_info(self):
-        env_info = {
-            'gym_version': version.VERSION,
-        }
-        if self.env.spec:
-            env_info['env_id'] = self.env.spec.id
-        return env_info

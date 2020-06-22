@@ -1,12 +1,7 @@
 import gym
-from gym import Wrapper
-from gym import error, version
-import os, json, logging, numpy as np, six
 
-FILE_PREFIX = 'openaigym'
-MANIFEST_PREFIX = FILE_PREFIX + '.manifest'
 
-class FeatureInverter(Wrapper):
+class FeatureInverter(gym.Wrapper):
     """
     This wrapper is used to change the order of features in the state representation of an environment
     It has no effect on the dynamics of the environment
@@ -52,11 +47,3 @@ class FeatureInverter(Wrapper):
         observation[self.f1] = observation[self.f2]
         observation[self.f2] = tmp
         return observation
-
-    def _env_info(self):
-        env_info = {
-            'gym_version': version.VERSION,
-        }
-        if self.env.spec:
-            env_info['env_id'] = self.env.spec.id
-        return env_info
