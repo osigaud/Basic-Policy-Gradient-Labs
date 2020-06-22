@@ -34,14 +34,14 @@ class FeatureInverter(gym.Wrapper):
         self.observation_space.low = low_space
         self.observation_space.high = high_space
 
-    def _step(self, action):
+    def step(self, action):
         observation, reward, done, info = self.env.step(action)
         tmp = observation[self.f1]
         observation[self.f1] = observation[self.f2]
         observation[self.f2] = tmp
         return observation, reward, done, info
 
-    def _reset(self, **kwargs):
+    def reset(self, **kwargs):
         observation = self.env.reset(**kwargs)
         tmp = observation[self.f1]
         observation[self.f1] = observation[self.f2]

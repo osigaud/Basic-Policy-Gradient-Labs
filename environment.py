@@ -10,8 +10,6 @@ def make_env(env_name, policy_type, env_obs_space_name=None):
         if env_name == "CartPoleContinuous-v0":
             if policy_type == "bernoulli":
                 env = BinaryShifter(env)
-            elif policy_type == "normal":
-                env = ActionAdapter(env)
         env.observation_space.names = env_obs_space_name
     else:
         env = gym.make(env_name)

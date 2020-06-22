@@ -11,7 +11,7 @@ class BinaryShifter(gym.Wrapper):
     def __init__(self, env):
         super(BinaryShifter, self).__init__(env)
 
-    def _step(self, action):
+    def step(self, action):
         if action[0] == 0.0:
             act = -1.0
         else:

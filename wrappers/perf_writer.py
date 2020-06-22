@@ -31,7 +31,7 @@ class PerfWriter(gym.Wrapper):
         self.cpt = 0
         self.episode = 0
 
-    def _step(self, action):
+    def step(self, action):
         observation, reward, done, info = self.env.step(action)
         self.cpt += 1
         self.total_reward += reward
@@ -42,7 +42,7 @@ class PerfWriter(gym.Wrapper):
                 self.duration_file.write(str(self.episode) + ' ' + str(self.cpt) + '\n')
         return observation, reward, done, info
 
-    def _reset(self, **kwargs):
+    def reset(self, **kwargs):
         observation = self.env.reset(**kwargs)
         self.cpt = 0
         self.episode += 1

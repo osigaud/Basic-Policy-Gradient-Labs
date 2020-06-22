@@ -10,6 +10,6 @@ class ActionAdapter(gym.Wrapper):
     def __init__(self, env):
         super(ActionAdapter, self).__init__(env)
 
-    def _step(self, action):
+    def step(self, action):
         act = action[0]
         return self.env.step(act)
