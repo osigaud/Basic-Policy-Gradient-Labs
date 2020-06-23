@@ -5,5 +5,5 @@ A repo to design basic Policy Gradient labs
 ### Installation
 
 ```
-pip install -e continuous_cartpole
+pip install -e my_gym
 ```
