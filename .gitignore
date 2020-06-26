@@ -131,3 +131,7 @@ dmypy.json
 
 # pytype static type analyzer
 .pytype/
+
+# Study data
+
+data/
