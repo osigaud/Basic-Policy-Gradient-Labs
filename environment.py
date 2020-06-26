@@ -3,6 +3,9 @@ import my_gym
 import numpy as np
 from wrappers import FeatureInverter, BinaryShifter, ActionAdapter, PerfWriter
 
+# pour voir la liste des environnements gym disponible
+# from gym import envs
+# print(envs.registry.all())
 
 def make_env(env_name, policy_type, env_obs_space_name=None):
     if env_name == "CartPole-v0" or env_name == "CartPoleContinuous-v0":
