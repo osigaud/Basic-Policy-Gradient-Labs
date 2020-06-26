@@ -1,1 +1,1 @@
-from my_gym.envs.continuous_cartpole import ContinuousCartPoleEnv
+from my_gym.envs.continuous_cartpole import Continuous_CartPoleEnv

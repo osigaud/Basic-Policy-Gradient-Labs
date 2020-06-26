@@ -5,5 +5,5 @@ logger = logging.getLogger(__name__)
 
 register(
     id='CartPoleContinuous-v0',
-    entry_point='my_gym.envs:ContinuousCartPoleEnv',
+    entry_point='my_gym.envs:Continuous_CartPoleEnv',
 )
