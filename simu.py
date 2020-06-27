@@ -8,12 +8,16 @@ def make_simu_from_wrapper(pw, params):
     env_name = pw.env_name
     params.env_name = env_name
     env, discrete = make_env(env_name, params.policy_type, params.env_obs_space_name)
+    if params.max_episode_steps is not None:
+        env._max_episode_steps = params.max_episode_steps
     return Simu(env, env_name, discrete)
 
 
 def make_simu_from_params(params):
     env_name = params.env_name
     env, discrete = make_env(env_name, params.policy_type, params.env_obs_space_name)
+    if params.max_episode_steps is not None:
+        env._max_episode_steps = params.max_episode_steps
     return Simu(env, env_name, discrete)
 
 

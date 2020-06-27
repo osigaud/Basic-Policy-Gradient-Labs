@@ -52,6 +52,7 @@ def get_args():
     parser.add_argument('--batch_size', type=int, default=64, help='size of a minibatch')
     parser.add_argument('--nb_workers', type=int, default=2, help='number of cpus to collect samples')
     parser.add_argument('--shuffle', action='store_true', default=True, help='shuffle replay samples or not')
+    parser.add_argument('--max_episode_steps', type=int, default=None, help='duration of an episode (step limit)')
 
     '''
     parser.add_argument('--save-interval', type=int, default=5, help='the interval that save the trajectory')
