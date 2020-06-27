@@ -36,9 +36,9 @@ class Continuous_CartPoleEnv(gym.Env):
         # Angle limit set to 2 * theta_threshold_radians so failing observation is still within bounds
         high = np.array([
             self.x_threshold * 2,
-            np.finfo(np.float32).max,
+            np.finfo(np.double).max,
             self.theta_threshold_radians * 2,
-            np.finfo(np.float32).max])
+            np.finfo(np.double).max])
 
         self.action_space = spaces.Box(self.min_action, self.max_action, shape = (1,))
         self.observation_space = spaces.Box(-high, high)
