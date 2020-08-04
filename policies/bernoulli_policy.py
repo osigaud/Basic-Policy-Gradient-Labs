@@ -3,6 +3,17 @@ import torch.nn as nn
 from torch.distributions import Bernoulli
 from policies.generic_net import GenericNet
 
+
+def make_det_vec(vals):
+    retour = []
+    for v in vals:
+        if v>0.5:
+            retour.append(1.0)
+        else:
+            retour.append(0.0)
+    return retour
+
+
 class BernoulliPolicy(GenericNet):
     def __init__(self, l1, l2, l3, l4, learning_rate):
         super(BernoulliPolicy, self).__init__()
@@ -26,6 +37,11 @@ class BernoulliPolicy(GenericNet):
             action = Bernoulli(probs).sample()
         return action.data.numpy().astype(int)
 
+    def select_action_deterministic(self, state):
+        with torch.no_grad():
+            probs = self.forward(state)
+            vals = probs.data.numpy().astype(int)
+        return make_det_vec(vals)
 
     def train_pg(self, state, action, reward):
         action = torch.FloatTensor(action)

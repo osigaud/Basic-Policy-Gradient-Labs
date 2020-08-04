@@ -1,7 +1,9 @@
 import torch
 import torch.nn as nn
+import numpy as np
 from torch.distributions import Normal
 from policies.generic_net import GenericNet
+
 
 class NormalPolicy(GenericNet):
     def __init__(self, l1, l2, l3, l4, learning_rate):
@@ -30,6 +32,11 @@ class NormalPolicy(GenericNet):
             n = Normal(mu, std)
             action = n.sample()
         return action.data.numpy().astype(int)
+
+    def select_action_deterministic(self, state):
+        with torch.no_grad():
+            mu, std = self.forward(state)
+        return mu
 
     # function to be verified
     def train_pg(self, state, action, reward):

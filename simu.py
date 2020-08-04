@@ -44,13 +44,14 @@ class Simu:
         return next_state, reward, done
 
     # used to evaluate an already trained policy, without training nor storing data
-    def evaluate(self, policy, render=False):
+    def evaluate_episode(self, policy, render=False):
         state = self.reset(render)
 
         total_reward = 0
 
         for _ in count():
-            action = policy.select_action(state)
+            action = policy.select_action_deterministic(state)
+            print(action)
             next_state, reward, done, _ = self.env.step(action)
             total_reward += reward
             state = next_state
