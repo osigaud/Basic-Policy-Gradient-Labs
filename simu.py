@@ -45,13 +45,12 @@ class Simu:
 
     # used to evaluate an already trained policy, without training nor storing data
     def evaluate_episode(self, policy, render=False):
+        self.env.set_reward_flag(True)
+        self.env.set_duration_flag(True)
         state = self.reset(render)
-
         total_reward = 0
-
         for _ in count():
             action = policy.select_action_deterministic(state)
-            print(action)
             next_state, reward, done, _ = self.env.step(action)
             total_reward += reward
             state = next_state
@@ -65,14 +64,17 @@ class Simu:
         episode = Episode()
         for _ in count():
             action = policy.select_action(state)
-            state, reward, done = self.take_step(state, action, episode, render)
+            next_state, reward, done = self.take_step(state, action, episode, render)
             total_reward += reward
+            state = next_state
 
             if done:
                 # print(batch.episodes[0].action_pool)
                 return episode, total_reward
 
-    def perform_episodes(self, pw, params, policy, critic, policy_loss_file, value_loss_file, study_name, beta=0) -> None:
+    def train(self, pw, params, policy, critic, policy_loss_file, value_loss_file, study_name, beta=0) -> None:
+        self.env.set_reward_flag(False)
+        self.env.set_duration_flag(False)
         batch = Batch()
         for cycle in range(params.nb_cycles):
             total_reward = np.zeros(params.nb_evals)
@@ -118,6 +120,8 @@ class Simu:
             value_loss_file.write(str(cycle) + " " + str(value_loss) + "\n")
             policy_loss_file.write(str(cycle) + " " + str(policy_loss) + "\n")
             batch = Batch()
+            self.evaluate_episode(policy, False)
+
 
     def make_monte_carlo_batch(self, params, policy):
         batch = Batch()

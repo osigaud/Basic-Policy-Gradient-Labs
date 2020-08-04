@@ -2,8 +2,8 @@
 Continuous action version of the classic cart-pole system implemented by Rich Sutton et al.
 """
 
-import logging
 import math
+import logging
 import gym
 from gym import spaces
 from gym.utils import seeding
@@ -11,11 +11,7 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-class Continuous_CartPoleEnv(gym.Env):
-    metadata = {
-        'render.modes': ['human', 'rgb_array'],
-        'video.frames_per_second' : 50
-    }
+class ContinuousCartPoleEnv(gym.Env):
 
     def __init__(self):
         self.min_action = -1.0
@@ -26,7 +22,7 @@ class Continuous_CartPoleEnv(gym.Env):
         self.total_mass = (self.masspole + self.masscart)
         self.length = 0.5 # actually half the pole's length
         self.polemass_length = (self.masspole * self.length)
-        self.force_mag = 10.0
+        self.force_max = 10.0
         self.tau = 0.02  # seconds between state updates
 
         # Angle at which to fail the episode
@@ -56,7 +52,7 @@ class Continuous_CartPoleEnv(gym.Env):
     def step(self, action):
         state = self.state
         x, x_dot, theta, theta_dot = state
-        force = min(max(action, -1.0), 1.0)*self.force_mag
+        force = min(max(action, -1.0), 1.0)*self.force_max
 
         costheta = math.cos(theta)
         sintheta = math.sin(theta)
@@ -85,7 +81,8 @@ class Continuous_CartPoleEnv(gym.Env):
                 logger.warning("You are calling 'step()' even though this environment has already returned done = True. You should always call 'reset()' once you receive 'done = True' -- any further steps are undefined behavior.")
             self.steps_beyond_done += 1
             reward = 0.0
-        return np.array(self.state), reward, done, {}
+        next_state = np.array(self.state)
+        return  next_state, reward, done, {}
 
     def reset(self):
         self.state = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))

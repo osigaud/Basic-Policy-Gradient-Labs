@@ -32,7 +32,7 @@ def study_beta(params):
             else:
                 critic = VNetwork(simu.obs_size, 24, 36, 1, params.lr_critic)
             pw = PolicyWrapper(policy, params.team_name, simu.name)
-            simu.perform_episodes(pw, params, simu.env, policy, critic, policy_loss_file, value_loss_file, "beta")
+            simu.train(pw, params, simu.env, policy, critic, policy_loss_file, value_loss_file, "beta")
 
 
 def study_pg(params):
@@ -61,7 +61,7 @@ def study_pg(params):
                 critic = VNetwork(simu.obs_size, 24, 36, 1, params.lr_critic)
             # plot_critic(simu, critic, policy, study[i], '_ante_', j)
 
-            simu.perform_episodes(pw, params, policy, critic, policy_loss_file, value_loss_file, study[i])
+            simu.train(pw, params, policy, critic, policy_loss_file, value_loss_file, study[i])
         plot_policy(policy, simu.env, simu.name, study[i], '_post_', j, plot=False)
         plot_critic(simu, critic, policy, study[i], '_post_', j)
         critic.save_model('data/critics/' + params.env_name + '#' + params.team_name + '#' + study[i] + str(j) + '.pt')
@@ -82,7 +82,7 @@ def study_regress(params) -> None:
         plot_critic(simu, critic, policy, 'regress', '_ante_', j)
 
         simu.regress(simu.env, policy, simu.name, params.render)
-        simu.perform_episodes(pw, params, simu.env, policy, critic, policy_loss_file, value_loss_file, "regress")
+        simu.train(pw, params, simu.env, policy, critic, policy_loss_file, value_loss_file, "regress")
         plot_policy(policy, simu.env, simu.name, 'regress', '_post_', j, plot=False)
         plot_critic(simu, critic, policy, 'regress', '_post_', j)
 
@@ -113,7 +113,7 @@ def study_nstep(params):
                 critic = VNetwork(simu.obs_size, 24, 36, 1, params.lr_critic)
             # plot_critic(simu, critic, policy, "nstep", '_ante_', j)
 
-            simu.perform_episodes(pw, params, policy, critic, policy_loss_file, value_loss_file, "nstep")
+            simu.train(pw, params, policy, critic, policy_loss_file, value_loss_file, "nstep")
             plot_policy(policy, simu.env, simu.name, "nstep", '_post_', j, plot=False)
             plot_critic(simu, critic, policy, "nstep", '_post_', j)
     chrono.stop()

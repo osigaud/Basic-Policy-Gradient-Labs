@@ -7,7 +7,7 @@ from policies.generic_net import GenericNet
 def make_det_vec(vals):
     retour = []
     for v in vals:
-        if v>0.5:
+        if v > 0.5:
             retour.append(1.0)
         else:
             retour.append(0.0)
@@ -40,8 +40,7 @@ class BernoulliPolicy(GenericNet):
     def select_action_deterministic(self, state):
         with torch.no_grad():
             probs = self.forward(state)
-            vals = probs.data.numpy().astype(int)
-        return make_det_vec(vals)
+        return make_det_vec(probs)
 
     def train_pg(self, state, action, reward):
         action = torch.FloatTensor(action)

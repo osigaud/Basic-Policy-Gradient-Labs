@@ -16,8 +16,8 @@ class PerfWriter(gym.Wrapper):
     def __init__(self, env):
         super(PerfWriter, self).__init__(env)
 
-        self.cpt = 0
-        self.episode = 0
+        self.duration = 0
+        self.num_episode = 0
         self.reward_flag = True
         self.duration_flag = True
         self.duration_file = None
@@ -28,24 +28,25 @@ class PerfWriter(gym.Wrapper):
             os.makedirs(self.directory)
 
     def reinit(self):
-        self.cpt = 0
-        self.episode = 0
+        self.duration = 0
+        self.num_episode = 0
 
     def step(self, action):
         observation, reward, done, info = self.env.step(action)
-        self.cpt += 1
+        self.duration += 1
         self.total_reward += reward
         if done:
             if self.reward_flag:
-                self.reward_file.write(str(self.episode) + ' ' + str(self.total_reward) + '\n')
+                self.reward_file.write(str(self.num_episode) + ' ' + str(self.total_reward) + '\n')
             if self.duration_flag:
-                self.duration_file.write(str(self.episode) + ' ' + str(self.cpt) + '\n')
+                self.duration_file.write(str(self.num_episode) + ' ' + str(self.duration) + '\n')
         return observation, reward, done, info
 
     def reset(self, **kwargs):
         observation = self.env.reset(**kwargs)
-        self.cpt = 0
-        self.episode += 1
+        self.duration = 0
+        if self.reward_flag or self.duration_flag:
+            self.num_episode += 1
         self.total_reward = 0
         return observation
 

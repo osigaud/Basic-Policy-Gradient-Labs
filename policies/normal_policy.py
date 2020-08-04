@@ -36,7 +36,7 @@ class NormalPolicy(GenericNet):
     def select_action_deterministic(self, state):
         with torch.no_grad():
             mu, std = self.forward(state)
-        return mu
+        return mu.data.numpy().astype(float)
 
     # function to be verified
     def train_pg(self, state, action, reward):
