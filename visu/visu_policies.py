@@ -5,6 +5,17 @@ import random
 
 
 def final_show(save_figure, plot, figname, x_label, y_label, title, dir):
+    """
+    Finalize all plots, adding labels and putting the corresponding file in the specified directory
+    :param save_figure:
+    :param plot:
+    :param figname:
+    :param x_label:
+    :param y_label:
+    :param title:
+    :param dir:
+    :return:
+    """
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)
@@ -20,17 +31,26 @@ def final_show(save_figure, plot, figname, x_label, y_label, title, dir):
 
 def plot_policy(policy, env, name, study_name, default_string, num, plot=False):
     obs_size = env.observation_space.shape[0]
-    actor_picture_name = str(num) + '_actor_' + study_name + '_' + default_string +  name + '.pdf'
+    actor_picture_name = str(num) + '_actor_' + study_name + '_' + default_string + name + '.pdf'
     if obs_size == 1:
-        plot_stoch_policy_1D(policy, env, plot, figname=actor_picture_name)
+        plot_policy_1D(policy, env, plot, figname=actor_picture_name)
     elif obs_size == 2:
-        plot_stoch_policy_2D(policy, env, plot, figname=actor_picture_name)
+        plot_policy_2D(policy, env, plot, figname=actor_picture_name)
     else:
-        plot_stoch_policy_ND(policy, env, plot, figname=actor_picture_name)
+        plot_policy_ND(policy, env, plot, figname=actor_picture_name)
 
 
-# visualization of the policy for a 1D environment like 1D Toy with continuous actions
-def plot_stoch_policy_1D(policy, env, plot=True, figname="policy_1D.pdf", save_figure=True, definition=50):
+def plot_policy_1D(policy, env, plot=True, figname="policy_1D.pdf", save_figure=True, definition=50):
+    """
+    visualization of the policy for a 1D environment like 1D Toy with continuous actions
+    :param policy:
+    :param env:
+    :param plot:
+    :param figname:
+    :param save_figure:
+    :param definition:
+    :return:
+    """
     if env.observation_space.shape[0] != 1:
         raise(ValueError("The observation space dimension is {}, should be 1".format(env.observation_space.shape[0])))
 
@@ -41,7 +61,7 @@ def plot_stoch_policy_1D(policy, env, plot=True, figname="policy_1D.pdf", save_f
     actions = []
     for index_x, x in enumerate(np.linspace(x_min, x_max, num=definition)):
         state = np.array([x])
-        action = policy.select_action(state)
+        action = policy.select_action_deterministic(state)
         states.append(state)
         actions.append(action)
 
@@ -52,7 +72,7 @@ def plot_stoch_policy_1D(policy, env, plot=True, figname="policy_1D.pdf", save_f
 
 
 # visualization of the policy for a 2D environment like continuous mountain car.
-def plot_stoch_policy_2D(policy, env, plot=True, figname='stoch_actor.pdf', save_figure=True, definition=50):
+def plot_policy_2D(policy, env, plot=True, figname='stoch_actor.pdf', save_figure=True, definition=50):
     """Portrait the actor"""
     if env.observation_space.shape[0] != 2:
         raise(ValueError("Observation space dimension {}, should be 2".format(env.observation_space.shape[0])))
@@ -65,7 +85,10 @@ def plot_stoch_policy_2D(policy, env, plot=True, figname='stoch_actor.pdf', save
         for index_y, y in enumerate(np.linspace(y_min, y_max, num=definition)):
             # Be careful to fill the matrix in the right order
             state = np.array([[x, y]])
-            portrait[definition - (1 + index_y), index_x] = policy.select_action(state)
+            action = policy.select_action_deterministic(state)
+            if hasattr(action, "__len__"):
+                action = action[0]
+            portrait[definition - (1 + index_y), index_x] = action
     plt.figure(figsize=(10, 10))
     plt.imshow(portrait, cmap="inferno", extent=[x_min, x_max, y_min, y_max], aspect='auto')
     plt.colorbar(label="action")
@@ -102,8 +125,8 @@ def plot_proba_policy(policy, env, plot=True, figname='proba_actor.pdf', save_fi
     final_show(save_figure, plot, figname, x_label, y_label, "Actor phase portrait", '/plots/')
 
 
-# visualization of the policy for a ND environment like pendulum
-def plot_stoch_policy_ND(policy, env, plot=True, figname='stoch_actor.pdf', save_figure=True, definition=50):
+# visualization of the policy for a ND environment like pendulum or cartpole
+def plot_policy_ND(policy, env, plot=True, figname='stoch_actor.pdf', save_figure=True, definition=50):
     """Portrait the actor"""
     if env.observation_space.shape[0] <= 2:
         raise(ValueError("Observation space dimension {}, should be > 2".format(env.observation_space.shape[0])))
@@ -119,10 +142,9 @@ def plot_stoch_policy_ND(policy, env, plot=True, figname='stoch_actor.pdf', save
             for i in range(2, len(state_min)):
                 z = random.random() - 0.5
                 state = np.append(state, z)
-            action = policy.select_action(state)
-            portrait[definition - (1 + index_y), index_x] = action
+            action = policy.select_action_deterministic(state)
+            portrait[definition - (1 + index_y), index_x] = action[0]
     plt.figure(figsize=(10, 10))
-    # print(state_min[0], ";", state_max[0], ";", state_min[1], ";", state_max[1], state_min[2], ";", state_max[2], state_min[3], ";", state_max[3])
     plt.imshow(portrait, cmap="inferno", extent=[state_min[0], state_max[0], state_min[1], state_max[1]], aspect='auto')
     plt.colorbar(label="action")
     # Add a point at the center

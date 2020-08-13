@@ -18,6 +18,7 @@ class PerfWriter(gym.Wrapper):
 
         self.duration = 0
         self.num_episode = 0
+        self.total_reward = 0
         self.reward_flag = True
         self.duration_flag = True
         self.duration_file = None

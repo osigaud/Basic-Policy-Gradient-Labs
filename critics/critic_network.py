@@ -68,7 +68,7 @@ class CriticNetwork(GenericNet):
         return loss  # renvoie la dernière loss sur les nb_batches
         # return range(len(all_losses)), all_losses
 
-    def update_mc(self, params, dataset, value_loss_file, train, trace_loss=False, save_best=True):
+    def update_mc(self, params, dataset, train, save_best=True):
         best_loss = 10000
         loader = data.DataLoader(
             dataset=dataset,
@@ -76,8 +76,6 @@ class CriticNetwork(GenericNet):
         for epoch in range(params.nb_batches):
             losses = self.compute_validation_loss(loader, train)
             loss = losses.mean()
-            if trace_loss:
-                value_loss_file.write(str(epoch) + " " + str(loss) + "\n")
             if save_best and best_loss > loss:
                 best_loss = loss
                 # print("cpt: ", epoch, " loss : ", loss)

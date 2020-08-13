@@ -2,11 +2,11 @@
 
 import os
 from chrono import Chrono
+from simu import make_simu_from_params
 from policies import BernoulliPolicy, NormalPolicy, PolicyWrapper
 from critics import VNetwork, QNetworkContinuous
 from arguments import get_args
 from visu.visu_critics import plot_critic
-from simu import make_simu_from_params
 from visu.visu_policies import plot_policy
 from exploit_results import main_exploit
 
@@ -52,7 +52,7 @@ def study_pg(params):
             else:
                 print("main PG: unknown policy type: ", params.policy_type)
             pw = PolicyWrapper(policy, params.team_name, simu.name)
-            # plot_policy(policy, simu.env, simu.name, study[i], '_ante_', j, plot=False)
+            plot_policy(policy, simu.env, simu.name, study[i], '_ante_', j, plot=False)
 
             if not simu.discrete:
                 act_size = simu.env.action_space.shape[0]
@@ -62,7 +62,7 @@ def study_pg(params):
             # plot_critic(simu, critic, policy, study[i], '_ante_', j)
 
             simu.train(pw, params, policy, critic, policy_loss_file, value_loss_file, study[i])
-        plot_policy(policy, simu.env, simu.name, study[i], '_post_', j, plot=False)
+            plot_policy(policy, simu.env, simu.name, study[i], '_post_', j, plot=False)
         plot_critic(simu, critic, policy, study[i], '_post_', j)
         critic.save_model('data/critics/' + params.env_name + '#' + params.team_name + '#' + study[i] + str(j) + '.pt')
     chrono.stop()

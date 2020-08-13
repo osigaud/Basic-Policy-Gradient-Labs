@@ -16,14 +16,13 @@ class NormalPolicy(GenericNet):
         self.tanh = nn.Tanh()
         self.softplus = nn.Softplus()
         self.optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
-        # self.optimizer = torch.optim.RMSprop(self.parameters(), lr=learning_rate)
 
     def forward(self, state):
         state = torch.from_numpy(state).float()
         state = self.relu(self.fc1(state))
         state = self.relu(self.fc2(state))
-        mu = self.tanh(self.fc_mu(state))  # *2
-        std = self.softplus(self.fc_std(state))  # + 1e-3
+        mu = self.tanh(self.fc_mu(state))
+        std = 2  # self.softplus(self.fc_std(state))
         return mu, std
 
     def select_action(self, state):
@@ -31,19 +30,14 @@ class NormalPolicy(GenericNet):
             mu, std = self.forward(state)
             n = Normal(mu, std)
             action = n.sample()
-        return action.data.numpy().astype(int)
+        return action.data.numpy().astype(float)
 
-    def select_action_deterministic(self, state):
-        with torch.no_grad():
-            mu, std = self.forward(state)
-        return mu.data.numpy().astype(float)
-
-    # function to be verified
     def train_pg(self, state, action, reward):
         action = torch.FloatTensor(action)
-        reward = torch.FloatTensor(reward)  # .unsqueeze(1)
+        reward = torch.FloatTensor(reward) 
         mu, std = self.forward(state)
-        loss = -Normal(mu, std).log_prob(action) * reward  # Negative score function x reward
+        # Negative score function x reward
+        loss = -Normal(mu, std).log_prob(action) * reward  
         self.update(loss)
         return loss
 
@@ -53,3 +47,8 @@ class NormalPolicy(GenericNet):
             state = np.array(episode.state_pool)
             action = np.array(episode.action_pool)
             self.train_regress(state, action)
+    
+    def select_action_deterministic(self, state):
+        with torch.no_grad():
+            mu, std = self.forward(state)
+        return mu.data.numpy().astype(float)

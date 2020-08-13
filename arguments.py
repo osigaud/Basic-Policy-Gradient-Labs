@@ -1,13 +1,14 @@
 import argparse
 
-#the following functions are used to build file names for saving data and displaying results
+# the following functions are used to build file names for saving data and displaying results
+
 
 def make_study_string(params):
-    return params.env_name + '_' + params.study_name + '_' + params.critic_update + '_' + params.critic_estim
+    return params.env_name + '_' + params.study_name + '_' + params.critic_update + '_' + params.critic_estim_method
 
 
 def make_study_params_string(params):
-    return 'cycles_' + str(params.nb_cycles) + '_evals_' + str(params.nb_evals) + '_batches_' + str(params.nb_batches)
+    return 'cycles_' + str(params.nb_cycles) + '_trajs_' + str(params.nb_trajs) + '_batches_' + str(params.nb_batches)
 
 
 def make_learning_params_string(params):
@@ -22,7 +23,7 @@ def make_full_string(params):
 
 def get_args():
     """
-    Standard function to specify the default value of the hyperparameters of all policy gradient algorithms 
+    Standard function to specify the default value of the hyper-parameters of all policy gradient algorithms
     and experimental setups
     :return: the complete list of arguments
     """
@@ -33,16 +34,17 @@ def get_args():
     parser.add_argument('--render', action='store_true', default=False, help='visualize the run or not')
     # study settings
     parser.add_argument('--study_name', type=str, default='pg', help='study name: pg, regress, nstep, loss, diff, ac')
-    parser.add_argument('--gradients', type=str, default=['sum', 'discount', 'normalize'], help='missing baseline')
     parser.add_argument('--critic_update', type=str, default="dataset", help='critic update method: batch or dataset')
-    parser.add_argument('--critic_estim', type=str, default="td", help='critic estimation method: mc, td or nstep')
     parser.add_argument('--policy_type', type=str, default="bernoulli", help='policy type: bernoulli or normal')
     parser.add_argument('--team_name', type=str, default='moi', help='team name')
     # study parameters
     parser.add_argument('--nb_repet', type=int, default=10, help='number of repetitions to get statistics')
     parser.add_argument('--nb_cycles', type=int, default=40, help='number of training cycles')
-    parser.add_argument('--nb_evals', type=int, default=20, help='number of evaluation epochs between two training')
-    parser.add_argument('--nb_batches', type=int, default=20, help='times to update the network')
+    parser.add_argument('--nb_trajs', type=int, default=20, help='number of trajectories in a MC batch')
+    parser.add_argument('--nb_batches', type=int, default=20, help='number of updates of the network using datasets')
+    # algo settings
+    parser.add_argument('--gradients', type=str, default=['sum', 'discount', 'normalize'], help='other: baseline, beta')
+    parser.add_argument('--critic_estim_method', type=str, default="td", help='critic estimation method: mc, td or nstep')
     # learning parameters
     parser.add_argument('--gamma', type=float, default=0.99, help='discount factor')
     parser.add_argument('--lr_actor', type=float, default=0.01, help='learning rate of the actor')
@@ -78,7 +80,6 @@ def get_args():
     parser.add_argument('--use-curriculum', action='store_true', default=False, help='use the curriculum or not')
     parser.add_argument('--multiple-target-sizes', action='store_true', default=False, help='train the agent to reach targets of different sizes')
     parser.add_argument('--include-movement-cost', action='store_false', default=True, help='consider or not the cost of a movement')
-    parser.add_argument('--multiple-init-pos', action='store_true', default=False, help='multiple initial positions of the hand')
     '''
 
     args = parser.parse_args()

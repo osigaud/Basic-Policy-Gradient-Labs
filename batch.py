@@ -195,18 +195,18 @@ class Batch:
         list_actions = []
 
         # prepare reward data for the td and n-step case
-        if params.critic_estim == "nstep":
+        if params.critic_estim_method == "nstep":
             self.nstep_return(params.nstep, params.gamma, critic)
         else:
-            if not params.critic_estim == "td":
-                print("update_critic : méthode d'estimation inconnue :", params.critic_estim)
+            if not params.critic_estim_method == "td":
+                print("batch prepare_dataset_td: unknown estimation method :", params.critic_estim_method)
 
         for j in range(self.size):
             episode = self.episodes[j]
             state = episode.state_pool
             action = episode.action_pool
             reward = episode.reward_pool
-            if params.critic_estim == "td":
+            if params.critic_estim_method == "td":
                 done = np.array(episode.done_pool)
                 next_state = np.array(episode.next_state_pool)
                 next_action = actor.select_action(next_state)
@@ -224,21 +224,4 @@ class Batch:
         dataset = data.TensorDataset(torch.Tensor(list_states), torch.Tensor(list_actions), t_target)
         return dataset
 
-    def prepare(self, gamma, beta, critic, study_name, n):
-        if beta != 0:
-            self.exponentiate_rewards(beta)
-        elif study_name == "regress":
-            self.normalize_rewards(gamma)
-        elif study_name == "discount":
-            self.discounted_sum_rewards(gamma)
-        elif study_name == "normalize":
-            self.normalize_rewards(gamma)
-        elif study_name == "baseline":
-            self.discounted_sum_rewards(gamma)
-            self.substract_baseline(critic)
-        elif study_name == "sum":
-            self.sum_rewards()
-        elif study_name[:5] == "nstep":
-            self.nstep_return(n, gamma, critic)
-        else:
-            print("study not found: ", study_name[:5])
+

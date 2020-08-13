@@ -12,10 +12,10 @@ class BinaryShifter(gym.Wrapper):
         super(BinaryShifter, self).__init__(env)
 
     def step(self, action):
+        if not (action[0] == 1.0 or action[0] == 0.0):
+            print("binary shifter : action = ", action[0])
         if action[0] == 0.0:
-            act = -1.0
+            act = [-1.0]
         else:
-            act = action[0]
-        if not (act == 1.0 or act == -1.0):
-            print ("binary shifter : action = ", action[0])
+            act = [1.0]
         return self.env.step(act)
