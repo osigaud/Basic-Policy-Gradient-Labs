@@ -1,6 +1,7 @@
+import numpy as np
 import torch
 import torch.nn as nn
-import numpy as np
+import torch.nn.functional as func
 from torch.distributions import Normal
 from policies.generic_net import GenericNet
 
@@ -52,3 +53,10 @@ class NormalPolicy(GenericNet):
         with torch.no_grad():
             mu, std = self.forward(state)
         return mu.data.numpy().astype(float)
+
+    def train_regress(self, state, action):
+        action = torch.FloatTensor(action)
+        mu, _ = self.forward(state)
+        loss = func.mse_loss(mu, action)
+        self.update(loss)
+        return loss

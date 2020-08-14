@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as func
 from torch.distributions import Bernoulli
 from policies.generic_net import GenericNet
 
@@ -15,15 +16,18 @@ def make_det_vec(vals):
 
 
 class BernoulliPolicy(GenericNet):
+    """
+    A policy outputing a boolean value for each state
+    """
     def __init__(self, l1, l2, l3, l4, learning_rate):
         super(BernoulliPolicy, self).__init__()
         self.relu = nn.ReLU()
         self.fc1 = nn.Linear(l1, l2)
-        self.fc1.weight.data.uniform_(-1.0, 1.0)
+        # self.fc1.weight.data.uniform_(-1.0, 1.0)
         self.fc2 = nn.Linear(l2, l3)
-        self.fc2.weight.data.uniform_(-1.0, 1.0)
+        # self.fc2.weight.data.uniform_(-1.0, 1.0)
         self.fc3 = nn.Linear(l3, l4)  # Prob of Left
-        self.fc3.weight.data.uniform_(-1.0, 1.0)
+        # self.fc3.weight.data.uniform_(-1.0, 1.0)
         self.optimizer = torch.optim.RMSprop(self.parameters(), lr=learning_rate)
 
     def forward(self, state):
@@ -53,3 +57,9 @@ class BernoulliPolicy(GenericNet):
             probs = self.forward(state)
         return make_det_vec(probs)
 
+    def train_regress(self, state, action):
+        action = torch.FloatTensor(action)
+        proposed_action = self.forward(state)
+        loss = func.mse_loss(proposed_action, action)
+        self.update(loss)
+        return loss

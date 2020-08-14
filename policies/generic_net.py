@@ -1,11 +1,11 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as func
 
 
 class GenericNet(nn.Module):
     """
     The super class of all policy and critic networks
+    Contains general behaviors like loading and saving, and updating from a loss
     """
     def __init__(self):
         super(GenericNet, self).__init__()
@@ -27,8 +27,3 @@ class GenericNet(nn.Module):
         loss.sum().backward()
         self.optimizer.step()
 
-    def train_regress(self, state, action):
-        proposed_action = self.forward(state)
-        loss = func.mse_loss(proposed_action, action)
-        self.update(loss)
-        return loss
