@@ -14,15 +14,13 @@ class NormalPolicy(GenericNet):
         self.fc2 = nn.Linear(l2, l3)
         self.fc_mu = nn.Linear(l3, l4)
         self.fc_std = nn.Linear(l3, l4)
-        self.tanh = nn.Tanh()
-        self.softplus = nn.Softplus()
         self.optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
 
     def forward(self, state):
         state = torch.from_numpy(state).float()
         state = self.relu(self.fc1(state))
         state = self.relu(self.fc2(state))
-        mu = self.tanh(self.fc_mu(state))
+        mu = self.fc_mu(state)
         std = 0.9  # 20*self.softplus(self.fc_std(state))
         return mu, std
 
