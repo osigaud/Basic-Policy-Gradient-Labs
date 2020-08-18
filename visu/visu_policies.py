@@ -29,18 +29,18 @@ def final_show(save_figure, plot, figname, x_label, y_label, title, dir):
     plt.close()
 
 
-def plot_policy(policy, env, name, study_name, default_string, num, plot=False):
+def plot_policy(policy, env, deterministic, name, study_name, default_string, num, plot=False):
     obs_size = env.observation_space.shape[0]
     actor_picture_name = str(num) + '_actor_' + study_name + '_' + default_string + name + '.pdf'
     if obs_size == 1:
-        plot_policy_1D(policy, env, plot, figname=actor_picture_name)
+        plot_policy_1D(policy, env, deterministic, plot, figname=actor_picture_name)
     elif obs_size == 2:
-        plot_policy_2D(policy, env, plot, figname=actor_picture_name)
+        plot_policy_2D(policy, env, deterministic, plot, figname=actor_picture_name)
     else:
-        plot_policy_ND(policy, env, plot, figname=actor_picture_name)
+        plot_policy_ND(policy, env, deterministic, plot, figname=actor_picture_name)
 
 
-def plot_policy_1D(policy, env, plot=True, figname="policy_1D.pdf", save_figure=True, definition=50):
+def plot_policy_1D(policy, env, deterministic, plot=True, figname="policy_1D.pdf", save_figure=True, definition=50):
     """
     visualization of the policy for a 1D environment like 1D Toy with continuous actions
     :param policy:
@@ -61,7 +61,7 @@ def plot_policy_1D(policy, env, plot=True, figname="policy_1D.pdf", save_figure=
     actions = []
     for index_x, x in enumerate(np.linspace(x_min, x_max, num=definition)):
         state = np.array([x])
-        action = policy.select_action_deterministic(state)
+        action = policy.select_action(state, deterministic)
         states.append(state)
         actions.append(action)
 
@@ -72,7 +72,7 @@ def plot_policy_1D(policy, env, plot=True, figname="policy_1D.pdf", save_figure=
 
 
 # visualization of the policy for a 2D environment like continuous mountain car.
-def plot_policy_2D(policy, env, plot=True, figname='stoch_actor.pdf', save_figure=True, definition=50):
+def plot_policy_2D(policy, env, deterministic, plot=True, figname='stoch_actor.pdf', save_figure=True, definition=50):
     """Portrait the actor"""
     if env.observation_space.shape[0] != 2:
         raise(ValueError("Observation space dimension {}, should be 2".format(env.observation_space.shape[0])))
@@ -85,7 +85,7 @@ def plot_policy_2D(policy, env, plot=True, figname='stoch_actor.pdf', save_figur
         for index_y, y in enumerate(np.linspace(y_min, y_max, num=definition)):
             # Be careful to fill the matrix in the right order
             state = np.array([[x, y]])
-            action = policy.select_action_deterministic(state)
+            action = policy.select_action(state, deterministic)
             if hasattr(action, "__len__"):
                 action = action[0]
             portrait[definition - (1 + index_y), index_x] = action
@@ -126,7 +126,7 @@ def plot_proba_policy(policy, env, plot=True, figname='proba_actor.pdf', save_fi
 
 
 # visualization of the policy for a ND environment like pendulum or cartpole
-def plot_policy_ND(policy, env, plot=True, figname='stoch_actor.pdf', save_figure=True, definition=50):
+def plot_policy_ND(policy, env, deterministic, plot=True, figname='stoch_actor.pdf', save_figure=True, definition=50):
     """Portrait the actor"""
     if env.observation_space.shape[0] <= 2:
         raise(ValueError("Observation space dimension {}, should be > 2".format(env.observation_space.shape[0])))
@@ -142,7 +142,7 @@ def plot_policy_ND(policy, env, plot=True, figname='stoch_actor.pdf', save_figur
             for i in range(2, len(state_min)):
                 z = random.random() - 0.5
                 state = np.append(state, z)
-            action = policy.select_action_deterministic(state)
+            action = policy.select_action(state, deterministic)
             portrait[definition - (1 + index_y), index_x] = action[0]
     plt.figure(figsize=(10, 10))
     plt.imshow(portrait, cmap="inferno", extent=[state_min[0], state_max[0], state_min[1], state_max[1]], aspect='auto')

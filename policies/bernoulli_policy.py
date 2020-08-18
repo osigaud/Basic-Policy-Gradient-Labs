@@ -37,11 +37,14 @@ class BernoulliPolicy(GenericNet):
         action = torch.sigmoid(self.fc3(state))
         return action
 
-    def select_action(self, state):
+    def select_action(self, state, deterministic=False):
         with torch.no_grad():
             probs = self.forward(state)
-            action = Bernoulli(probs).sample()
-        return action.data.numpy().astype(int)
+            if deterministic:
+                return make_det_vec(probs)
+            else:
+                action = Bernoulli(probs).sample()
+            return action.data.numpy().astype(int)
 
     def train_pg(self, state, action, reward):
         action = torch.FloatTensor(action)
@@ -51,11 +54,6 @@ class BernoulliPolicy(GenericNet):
         loss = -m.log_prob(action) * reward  # Negative score function x reward
         self.update(loss)
         return loss
-
-    def select_action_deterministic(self, state):
-        with torch.no_grad():
-            probs = self.forward(state)
-        return make_det_vec(probs)
 
     def train_regress(self, state, action):
         action = torch.FloatTensor(action)

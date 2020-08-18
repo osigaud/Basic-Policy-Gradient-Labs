@@ -45,16 +45,16 @@ class NormalPolicy(GenericNet):
         self.update(loss)
         return loss
 
-    def train_regress_from_batch(self, batch):
-        for j in range(batch.size):
-            episode = batch.episodes[j]
-            state = np.array(episode.state_pool)
-            action = np.array(episode.action_pool)
-            self.train_regress(state, action)
-
     def train_regress(self, state, action):
         action = torch.FloatTensor(action)
         mu, _ = self.forward(state)
         loss = func.mse_loss(mu, action)
         self.update(loss)
         return loss
+
+    def train_regress_from_batch(self, batch):
+        for j in range(batch.size):
+            episode = batch.episodes[j]
+            state = np.array(episode.state_pool)
+            action = np.array(episode.action_pool)
+            self.train_regress(state, action)

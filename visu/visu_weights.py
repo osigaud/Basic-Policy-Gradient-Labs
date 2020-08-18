@@ -45,7 +45,6 @@ def get_normal_sample(net):
     for st in states:
         mu, std = net.forward(st)
         mu = mu.data.numpy().astype(float)
-        std = std.data.numpy().astype(float)
         mus.append(mu)
         stds.append(std)
     return mus, stds
@@ -60,12 +59,12 @@ def plot_normal_histograms(network, nb):
     bins_mus = np.arange(mus.min(), mus.max() + bar_width, bar_width)
     bins_stds = np.arange(stds.min(), stds.max() + bar_width, bar_width)
     plt.hist(mus, bins=bins_mus)
-    final_show(True, True, 'dispersion_mu_' + str(nb) + '.pdf', "mu", "count", "dispersion mu", '/results/')
+    final_show(True, False, 'dispersion_mu_' + str(nb) + '.pdf', "mu", "count", "dispersion mu", '/results/')
 
     plt.hist(stds, bins=bins_stds)
-    final_show(True, True, 'dispersion_std_' + str(nb) + '.pdf', "variance", "count", "dispersion variance", '/results/')
+    final_show(True, False, 'dispersion_std_' + str(nb) + '.pdf', "variance", "count", "dispersion variance", '/results/')
 
-def plot_weight_histogram(network, nb):
+def plot_weight_histograms(network, nb):
     probas = np.array(get_weight_sample(network))
     plt.figure(1, figsize=(13, 10))
 

@@ -1,7 +1,7 @@
 import gym
 import my_gym  # Necessary to see CartPoleContinuous, though PyCharm does not understand this
 import numpy as np
-from wrappers import FeatureInverter, BinaryShifter, ActionVectorAdapter, PerfWriter
+from wrappers import FeatureInverter, BinaryShifter, BinaryShifterDiscrete, ActionVectorAdapter, PerfWriter
 from gym.wrappers import TimeLimit
 
 # to see the list of available gym environments, type:
@@ -29,7 +29,10 @@ def make_env(env_name, policy_type, max_episode_steps, env_obs_space_name=None):
     env.observation_space.names = env_obs_space_name
 
     if policy_type == "bernoulli":
-        env = BinaryShifter(env)
+        if env.action_space.contains(np.array([0.5])):
+            env = BinaryShifter(env)
+        # else:
+        #    env = BinaryShifterDiscrete(env)
 
     env = PerfWriter(env)
     return env

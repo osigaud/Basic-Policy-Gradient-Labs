@@ -13,11 +13,16 @@ class Algo:
         self.beta = beta
         self.n = n
 
-    def prepare_batch(self, batch):
+    def prepare_batch(self, batch) -> None:
+        """
+        Applies reward transformations into the batch to prepare the computation of some gradient over these rewards
+        :param batch: the batch on which we train
+        :return: nothing
+        """
         if self.study_name == "beta":
             batch.exponentiate_rewards(self.beta)
         elif self.study_name == "regress":
-            batch.normalize_rewards(self.gamma)
+            batch.sum_rewards()
         elif self.study_name == "discount":
             batch.discounted_sum_rewards(self.gamma)
         elif self.study_name == "normalize":
@@ -35,9 +40,9 @@ class Algo:
     def train_critic_from_dataset(self, batch, params):
         """
         Train the critic from a dataset
-        :param batch:
-        :param params:
-        :return:
+        :param batch: the batch on which we train it (is transformed into a pytorch dataset
+        :param params: the hyper-parameters of the run, specified in arguments.py or in the command line
+        :return: the critic training loss
         """
         if self.critic_estim_method == "td":
             dataset = batch.prepare_dataset_td(params, self.policy, self.critic)
@@ -55,15 +60,15 @@ class Algo:
     def train_critic_from_batch(self, batch):
         """
         Train the critic from a batch
-        :param batch:
-        :return:
+        :param batch: the batch on which we train it
+        :return: the critic training loss
         """
         if self.critic_estim_method == "td":
-            return batch.compute_td_critic(self.gamma, self.critic, self.policy, True)
+            return batch.train_critic_td(self.gamma, self.policy, self.critic, True)
         elif self.critic_estim_method == "mc":
-            return batch.compute_mc_critic(self.gamma, self.critic, 0, True)
+            return batch.train_critic_mc(self.gamma, self.critic, 0, True)
         elif self.critic_estim_method == "nstep":
-            return batch.compute_mc_critic(self.gamma, self.critic, self.n, True)
+            return batch.train_critic_mc(self.gamma, self.critic, self.n, True)
         else:
             print("Algo train_policy_batch : unknown critic estim method : ", self.critic_estim_method)
         return 0

@@ -4,7 +4,7 @@ from batch import Episode, Batch
 from environment import make_env
 from algo import Algo
 from visu.visu_trajectories import plot_trajectory
-from visu.visu_weights import plot_weight_histogram
+from visu.visu_weights import plot_weight_histograms, plot_normal_histograms
 
 
 def make_simu_from_params(params):
@@ -70,11 +70,12 @@ class Simu:
         episode.add(state, action, reward, done, next_state)
         return next_state, reward, done
 
-    def evaluate_episode(self, policy, render=False):
+    def evaluate_episode(self, policy, deterministic=False, render=False):
         """
          Perform an episode using the policy parameter and return the obtained reward
          Used to evaluate an already trained policy, without storing data for further training
          :param policy: the policy controlling the agent
+         :param deterministic: whether the evaluation should use a deterministic policy or not
          :param render: whether the episode is displayed or not (True or False)
          :return: the total reward collected during the episode
          """
@@ -83,13 +84,14 @@ class Simu:
         state = self.reset(render)
         total_reward = 0
         for _ in count():
-            action = policy.select_action_deterministic(state)
-            print(action)
+            action = policy.select_action(state, deterministic)
+            # print(action)
             next_state, reward, done, _ = self.env.step(action)
             total_reward += reward
             state = next_state
 
             if done:
+                # print("############ eval nb steps:", t)
                 return total_reward
 
     def perform_one_episode(self, policy, render):
@@ -107,10 +109,10 @@ class Simu:
             state = next_state
 
             if done:
-                print("nb steps", t)
+                # print("train nb steps:", t)
                 return episode
 
-    def train(self, pw, params, policy, critic, policy_loss_file, value_loss_file, study_name, beta=0) -> None:
+    def train(self, pw, params, policy, critic, policy_loss_file, critic_loss_file, study_name, beta=0) -> None:
         """
         The main function for training and evaluating a policy
         Repeats training and evaluation params.nb_cycles times
@@ -121,12 +123,12 @@ class Simu:
         :param policy: the trained policy
         :param critic: the corresponding critic (not always used)
         :param policy_loss_file: the file to record successive policy loss values
-        :param value_loss_file: the file to record successive critic loss values
+        :param critic_loss_file: the file to record successive critic loss values
         :param study_name: the name of the studied gradient algorithm
         :param beta: a specific parameter for beta-parametrized values
         :return: nothing
         """
-        plot_weight_histogram(policy, 0)
+        plot_weight_histograms(policy, 0)
         for cycle in range(params.nb_cycles):
             batch = self.make_monte_carlo_batch(params.nb_trajs, params.render, policy)
 
@@ -134,22 +136,23 @@ class Simu:
             batch2 = batch.copy_batch()
             algo = Algo(study_name, params.critic_estim_method, policy, critic, params.gamma, beta, params.nstep)
             algo.prepare_batch(batch)
-            policy_loss = batch.train_td_actor(policy)
+            policy_loss = batch.train_policy_td(policy)
 
             # Update the critic
-            if params.critic_update == "dataset":
-                value_loss = algo.train_critic_from_dataset(batch2, params)
-            elif params.critic_update == "batch":
-                value_loss = algo.train_critic_from_batch(batch2)
+            if params.critic_update_method == "dataset":
+                critic_loss = algo.train_critic_from_dataset(batch2, params)
+            elif params.critic_update_method == "batch":
+                critic_loss = algo.train_critic_from_batch(batch2)
             else:
-                print("simu train: unknown update method = ", params.critic_update)
-            value_loss_file.write(str(cycle) + " " + str(value_loss) + "\n")
+                print("simu train: unknown update method = ", params.critic_update_method)
+            critic_loss_file.write(str(cycle) + " " + str(critic_loss) + "\n")
             policy_loss_file.write(str(cycle) + " " + str(policy_loss) + "\n")
 
             # policy evaluation part
-            total_reward = self.evaluate_episode(policy, False)
-            plot_weight_histogram(policy, cycle+1)
-            plot_trajectory(batch2, self.env, cycle+1)
+            total_reward = self.evaluate_episode(policy)
+
+            plot_weight_histograms(policy, cycle+1)
+            # plot_trajectory(batch2, self.env, cycle+1)
 
             # save best reward agent (no need for average, the policy is deterministic)
             if self.best_reward < total_reward:

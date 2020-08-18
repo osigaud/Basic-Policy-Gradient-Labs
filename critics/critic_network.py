@@ -5,6 +5,11 @@ from torch.utils.data.sampler import SubsetRandomSampler
 
 
 def make_subsets_samplers(dataset):
+    """
+    Splits a dataset into a validation part (20%) and a training part (80%)
+    :param dataset: the initial dataset
+    :return: a random sampler for each of the sub-datasets (training and validation)
+    """
     validation_split = .2
     shuffle_dataset = True
 
@@ -19,20 +24,29 @@ def make_subsets_samplers(dataset):
 
 
 class CriticNetwork(GenericNet):
+    """
+    A generic class for all kinds of network critics
+    """
     def __init__(self):
         super(CriticNetwork, self).__init__()
 
-    def update(self, loss):
+    def update(self, loss) -> None:
+        """
+        Updates the network given a loss value
+        :param loss: the loss to be applied
+        :return: nothing
+        """
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
 
-    def train_loss(self, train_loader):
+    def train_from_loader(self, train_loader):
         for step, (batch_s, batch_a, batch_t) in enumerate(train_loader):  # for each training step
             state = batch_s.data.numpy()
             action = batch_a.data.numpy()
             target = batch_t
-            self.compute_target_loss(state, action, target, True)
+            critic_loss = self.compute_loss_to_target(state, action, target)
+            self.update(critic_loss)
 
     def compute_validation_loss(self, validation_loader, train=False):
         losses = []
@@ -40,12 +54,14 @@ class CriticNetwork(GenericNet):
             state = batch_s.data.numpy()
             action = batch_a.data.numpy()
             target = batch_t
-            value_loss = self.compute_target_loss(state, action, target, train)
-            loss = value_loss.data.numpy()
-            losses.append(loss)
+            critic_loss = self.compute_loss_to_target(state, action, target)
+            if train:
+                self.update(critic_loss)
+            critic_loss = critic_loss.data.numpy()
+            losses.append(critic_loss)
         return np.array(losses)
 
-    def update_valid_mc(self, params, dataset, value_loss_file, trace_loss=False, save_best=True):
+    def update_valid_mc(self, params, dataset, critic_loss_file, trace_loss=False, save_best=True):
         train_sampler, valid_sampler = make_subsets_samplers(dataset)
 
         best_loss = 1000.0
@@ -58,14 +74,14 @@ class CriticNetwork(GenericNet):
         for epoch in range(params.nb_batches):
             self.train_loss(t_loader)
             losses = self.compute_validation_loss(v_loader)
-            loss = losses.mean()
+            critic_loss = losses.mean()
             if trace_loss:
-                value_loss_file.write(str(epoch) + " " + str(loss) + "\n")
-            if save_best and best_loss > loss:
-                best_loss = loss
+                critic_loss_file.write(str(epoch) + " " + str(critic_loss) + "\n")
+            if save_best and best_loss > critic_loss:
+                best_loss = critic_loss
                 # print("cpt: ", epoch, " loss : ", best_loss)
-                self.save_model('./critics/' + params.env_name + '#' + params.team_name + '#' + str(loss) + '.pt')
-        return loss  # renvoie la dernière loss sur les nb_batches
+                self.save_model('./critics/' + params.env_name + '#' + params.team_name + '#' + str(critic_loss) + '.pt')
+        return critic_loss  # returns the last critic loss over the nb_batches
         # return range(len(all_losses)), all_losses
 
     def update_mc(self, params, dataset, train, save_best=True):
@@ -75,13 +91,13 @@ class CriticNetwork(GenericNet):
             batch_size=params.batch_size, shuffle=params.shuffle, num_workers=params.nb_workers, )
         for epoch in range(params.nb_batches):
             losses = self.compute_validation_loss(loader, train)
-            loss = losses.mean()
-            if save_best and best_loss > loss:
-                best_loss = loss
+            critic_loss = losses.mean()
+            if save_best and best_loss > critic_loss:
+                best_loss = critic_loss
                 # print("cpt: ", epoch, " loss : ", loss)
-                self.save_model('./critics/' + params.env_name + '#' + params.team_name + '#' + str(loss) + '.pt')
+                self.save_model('./critics/' + params.env_name + '#' + params.team_name + '#' + str(critic_loss) + '.pt')
         # return range(params.nb_batches), losses
-        return loss  # renvoie la dernière loss sur les nb_batches
+        return critic_loss  # returns the last critic loss over the nb_batches
 
     def update_td(self, params, dataset, train):
         loader = data.DataLoader(
@@ -99,7 +115,7 @@ class CriticNetwork(GenericNet):
         v_loader = data.DataLoader(
             dataset=dataset,
             batch_size=params.batch_size, num_workers=params.nb_workers, sampler=valid_sampler)
-        train_loss(t_loader, critic)
+        self.train_from_loader(t_loader)
         losses = self.compute_validation_loss(v_loader)
         loss = losses.mean()
         return loss

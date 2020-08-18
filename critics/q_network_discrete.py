@@ -1,6 +1,7 @@
 import torch
+import random
 import torch.nn as nn
-import numpy as np
+import torch.nn.functional as func
 from critics.critic_network import CriticNetwork
 
 

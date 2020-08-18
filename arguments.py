@@ -4,7 +4,7 @@ import argparse
 
 
 def make_study_string(params):
-    return params.env_name + '_' + params.study_name + '_' + params.critic_update + '_' + params.critic_estim_method
+    return params.env_name + '_' + params.study_name + '_' + params.critic_update_method + '_' + params.critic_estim_method
 
 
 def make_study_params_string(params):
@@ -31,12 +31,12 @@ def get_args():
     # environment setting
     parser.add_argument('--env_name', type=str, default='CartPoleContinuous-v0', help='the environment name')
     parser.add_argument('--env_obs_space_name', type=str, default=["pos", "angle"])  # ["pos", "angle", "vx", "v angle"]
-    parser.add_argument('--render', action='store_true', default=False, help='visualize the run or not')
+    parser.add_argument('--render', type=bool, default=False, help='visualize the run or not')
     # study settings
     parser.add_argument('--study_name', type=str, default='pg', help='study name: pg, regress, nstep, loss, diff, ac')
-    parser.add_argument('--critic_update', type=str, default="dataset", help='critic update method: batch or dataset')
-    parser.add_argument('--policy_type', type=str, default="bernoulli", help='policy type: bernoulli or normal')
-    parser.add_argument('--team_name', type=str, default='moi', help='team name')
+    parser.add_argument('--critic_update_method', type=str, default="dataset", help='critic update method: batch or dataset')
+    parser.add_argument('--policy_type', type=str, default="bernoulli", help='policy type: bernoulli, normal, squashedGaussian')
+    parser.add_argument('--team_name', type=str, default='default_team', help='team name')
     # study parameters
     parser.add_argument('--nb_repet', type=int, default=10, help='number of repetitions to get statistics')
     parser.add_argument('--nb_cycles', type=int, default=40, help='number of training cycles')
@@ -53,7 +53,7 @@ def get_args():
     parser.add_argument('--nstep', type=int, default=5, help='n in n-step return')
     parser.add_argument('--batch_size', type=int, default=64, help='size of a minibatch')
     parser.add_argument('--nb_workers', type=int, default=2, help='number of cpus to collect samples')
-    parser.add_argument('--shuffle', action='store_true', default=True, help='shuffle replay samples or not')
+    parser.add_argument('--shuffle', type=bool, default=True, help='shuffle replay samples or not')
     parser.add_argument('--max_episode_steps', type=int, default=None, help='duration of an episode (step limit)')
 
     '''

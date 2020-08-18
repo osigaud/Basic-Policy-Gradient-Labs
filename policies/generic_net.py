@@ -6,6 +6,7 @@ class GenericNet(nn.Module):
     """
     The super class of all policy and critic networks
     Contains general behaviors like loading and saving, and updating from a loss
+    The stardnard loss function used is the Mean Squared Error (MSE)
     """
     def __init__(self):
         super(GenericNet, self).__init__()

@@ -14,6 +14,11 @@ class QNetworkContinuous(CriticNetwork):
         self.optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
 
     def forward(self, state, action):
+        """
+         Computes the value from a state action pair, going through the network
+         :param state: the given state(s)
+         :return: the corresponding values, as a torch tensor
+         """
         x = np.hstack((state, action))
         state = torch.from_numpy(x).float()
         value = self.relu(self.fc1(state))
@@ -22,17 +27,36 @@ class QNetworkContinuous(CriticNetwork):
         return value
 
     def evaluate(self, state, action):
+        """
+        Returns the critic value at a state action pair, as a numpy structure
+        :param state: the given state
+        :param action: the given action
+        :return: the value
+        """
         x = self.forward(state, action)
-        y = x.data.numpy()
-        return y
+        return x.data.numpy()
 
     def compute_bootstrap_target(self, reward, done, next_state, next_action, gamma):
-        nextvalue = np.concatenate(self.forward(next_state, next_action).data.numpy())
-        return reward + gamma * (1 - done) * nextvalue
+        """
+        Computes the target value using the bootstrap (Bellman backup) equation
+        The target is then used to train the critic
+        :param reward: the reward value in the sample(s)
+        :param done: whether this is the final step
+        :param next_state: the next state in the sample(s)
+        :param next_action: the next action in the sample(s) (used for SARSA)
+        :param gamma: the discount factor
+        :return: the target value
+        """
+        next_value = np.concatenate(self.forward(next_state, next_action).data.numpy())
+        return reward + gamma * (1 - done) * next_value
 
-    def compute_target_loss(self, state, action, target, train):
+    def compute_loss_to_target(self, state, action, target):
+        """
+        Computes the MSE between a target value and the critic value for the state action pair(s)
+        :param state: a state or vector of state
+        :param action: an action or vector of actions
+        :param target: the target value
+        :return: the resulting loss
+        """
         val = self.forward(state, action)
-        value_loss = self.loss_func(val, target)
-        if train:
-            self.update(value_loss)
-        return value_loss
+        return self.loss_func(val, target)
