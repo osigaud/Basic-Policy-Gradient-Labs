@@ -23,15 +23,18 @@ class NormalPolicy(GenericNet):
         state = self.relu(self.fc1(state))
         state = self.relu(self.fc2(state))
         mu = self.tanh(self.fc_mu(state))
-        std = 2  # self.softplus(self.fc_std(state))
+        std = 0.9  # 20*self.softplus(self.fc_std(state))
         return mu, std
 
-    def select_action(self, state):
+    def select_action(self, state, deterministic=False):
         with torch.no_grad():
             mu, std = self.forward(state)
-            n = Normal(mu, std)
-            action = n.sample()
-        return action.data.numpy().astype(float)
+            if deterministic:
+                return mu.data.numpy().astype(float)
+            else:
+                n = Normal(mu, std)
+                action = n.sample()
+            return action.data.numpy().astype(float)
 
     def train_pg(self, state, action, reward):
         action = torch.FloatTensor(action)
@@ -48,11 +51,6 @@ class NormalPolicy(GenericNet):
             state = np.array(episode.state_pool)
             action = np.array(episode.action_pool)
             self.train_regress(state, action)
-    
-    def select_action_deterministic(self, state):
-        with torch.no_grad():
-            mu, std = self.forward(state)
-        return mu.data.numpy().astype(float)
 
     def train_regress(self, state, action):
         action = torch.FloatTensor(action)
