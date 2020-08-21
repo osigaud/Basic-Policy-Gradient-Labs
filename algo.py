@@ -52,7 +52,7 @@ class Algo:
             return self.critic.update_mc(params, dataset, save_best=False)
         elif self.critic_estim_method == "nstep":
             dataset = batch.prepare_dataset_td(self.gamma, self.policy, self.critic, "nstep")
-            return self.critic.update_valid_td(params, dataset)
+            return self.critic.compute_valid_td(params, dataset)
         else:
             print("Algo train_policy_dataset : unknown critic estim method : ", self.critic_estim_method)
         return 0

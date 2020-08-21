@@ -4,7 +4,7 @@ from policies import BernoulliPolicy, NormalPolicy, PolicyWrapper
 from critics import QNetworkContinuous
 from arguments import get_args
 from visu.visu_policies import plot_policy
-from visu.visu_results import main_exploit
+from visu.visu_results import plot_results
 from main_pg import create_data_folders, set_files
 from mountain_car_expert import regress
 
@@ -38,7 +38,7 @@ def main():
     print(args)
     create_data_folders()
     study_regress(args)
-    main_exploit(args)
+    plot_results(args)
 
 if __name__ == '__main__':
     main()

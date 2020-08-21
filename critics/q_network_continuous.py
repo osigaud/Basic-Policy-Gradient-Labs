@@ -15,7 +15,7 @@ class QNetworkContinuous(CriticNetwork):
 
     def forward(self, state, action):
         """
-         Computes the value from a state action pair, going through the network
+         Compute the value from a state action pair, going through the network
          :param action: the chosen action
          :param state: the given state(s)
          :return: the corresponding values, as a torch tensor
@@ -35,7 +35,7 @@ class QNetworkContinuous(CriticNetwork):
 
     def evaluate(self, state, action):
         """
-        Returns the critic value at a state action pair, as a numpy structure
+        Return the critic value at a state action pair, as a numpy structure
         :param state: the given state
         :param action: the given action
         :return: the value
@@ -45,7 +45,7 @@ class QNetworkContinuous(CriticNetwork):
 
     def compute_bootstrap_target(self, reward, done, next_state, next_action, gamma):
         """
-        Computes the target value using the bootstrap (Bellman backup) equation
+        Compute the target value using the bootstrap (Bellman backup) equation
         The target is then used to train the critic
         :param reward: the reward value in the sample(s)
         :param done: whether this is the final step
@@ -59,7 +59,7 @@ class QNetworkContinuous(CriticNetwork):
 
     def compute_loss_to_target(self, state, action, target):
         """
-        Computes the MSE between a target value and the critic value for the state action pair(s)
+        Compute the MSE between a target value and the critic value for the state action pair(s)
         :param state: a state or vector of state
         :param action: an action or vector of actions
         :param target: the target value

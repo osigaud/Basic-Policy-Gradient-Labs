@@ -7,6 +7,12 @@ from environment import make_env
 
 
 def evaluate_pol(env, policy):
+    """
+    Function to evaluate a policy over 900 episodes
+    :param env: the evaluation environment
+    :param policy: the evaluated policy
+    :return: the obtained vector of 900 scores
+    """
     scores = []
     for i in range(900):
         state = env.reset()
@@ -29,15 +35,16 @@ def evaluate_pol(env, policy):
 
 
 class Evaluator:
-
+    """
+    A class to evaluate a set of policies stored into the same folder and ranking them accordin to their scores
+    """
     def __init__(self):
         self.env_dict = {}
         self.score_dict = {}
 
-
     def load_policies(self, folder) -> None:
         """
-         Input :                -folder : name of the folder containing policies
+         :param: folder : name of the folder containing policies
          Output : none (policies of the folder stored in self.env_dict)        
          """
         listdir = os.listdir(folder)
@@ -58,7 +65,11 @@ class Evaluator:
                 tmp_score_dict = {scores.mean(): [pw.team_name, scores.std()]}
                 self.score_dict[pw.env_name] = tmp_score_dict
 
-    def display_hall_of_fame(self):
+    def display_hall_of_fame(self) -> None:
+        """
+        Display the hall of fame of all the evaluated policies
+        :return: nothing
+        """
         print("Hall of fame")
         for k, v in self.score_dict.items():
             print("Environnement :", k)

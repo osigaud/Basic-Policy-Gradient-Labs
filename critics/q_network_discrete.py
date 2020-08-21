@@ -6,6 +6,9 @@ from critics.critic_network import CriticNetwork
 
 
 class QNetworkDiscrete(CriticNetwork):
+    """
+    The kind of critic network for discrete actions used in DQN
+    """
     def __init__(self, l1, l2, l3, l4, learning_rate):
         super(QNetworkDiscrete, self).__init__()
         self.relu = nn.ReLU()
@@ -16,7 +19,7 @@ class QNetworkDiscrete(CriticNetwork):
 
     def forward(self, state):
         """
-          Computes the tensor value from a state, going through the network
+          Compute the tensor value from a state, going through the network
           :param state: the given state(s)
           :return: the corresponding values, as a torch tensor
           """
@@ -43,7 +46,7 @@ class QNetworkDiscrete(CriticNetwork):
 
     def train_bootstrap(self, q_target, state, action, reward, done, next_state, gamma):
         """
-        Trains the critic using a bootstrap method
+        Train the critic using a bootstrap method
         :param q_target: the target value
         :param state: the input state
         :param action: the input action

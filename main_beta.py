@@ -2,7 +2,7 @@ from simu import make_simu_from_params
 from policies import BernoulliPolicy, NormalPolicy, PolicyWrapper
 from critics import VNetwork, QNetworkContinuous
 from arguments import get_args
-from visu.visu_results import main_exploit
+from visu.visu_results import plot_results
 from main_pg import create_data_folders, set_files
 
 
@@ -32,7 +32,7 @@ def main():
     create_data_folders()
     args.gradients = ['sum', 'discount', 'normalize']
     study_beta(args)
-    main_exploit(args)
+    plot_results(args)
 
 
 if __name__ == '__main__':

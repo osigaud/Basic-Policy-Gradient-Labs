@@ -5,14 +5,19 @@ from torch.distributions import Bernoulli
 from policies.generic_net import GenericNet
 
 
-def make_det_vec(vals):
-    retour = []
-    for v in vals:
+def make_det_vec(values):
+    """
+    Transform the output vector of a Bernoulli policy into a vector of deterministic choices
+    :param values: the Bernoulli policy output vector (turned into a numpy array)
+    :return: the vector of binary choices
+    """
+    choices = []
+    for v in values:
         if v > 0.5:
-            retour.append(1.0)
+            choices.append(1.0)
         else:
-            retour.append(0.0)
-    return retour
+            choices.append(0.0)
+    return choices
 
 
 class BernoulliPolicy(GenericNet):
@@ -28,7 +33,7 @@ class BernoulliPolicy(GenericNet):
         # self.fc2.weight.data.uniform_(-1.0, 1.0)
         self.fc3 = nn.Linear(l3, l4)  # Prob of Left
         # self.fc3.weight.data.uniform_(-1.0, 1.0)
-        self.optimizer = torch.optim.RMSprop(self.parameters(), lr=learning_rate)
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
 
     def forward(self, state):
         """

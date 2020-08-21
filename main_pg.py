@@ -8,7 +8,7 @@ from critics import VNetwork, QNetworkContinuous
 from arguments import get_args
 from visu.visu_critics import plot_critic
 from visu.visu_policies import plot_policy
-from visu.visu_results import main_exploit
+from visu.visu_results import plot_results
 
 
 def create_data_folders():
@@ -71,7 +71,7 @@ def main():
     create_data_folders()
     args.gradients = ['discount']
     study_pg(args)
-    main_exploit(args)
+    plot_results(args)
 
 
 if __name__ == '__main__':

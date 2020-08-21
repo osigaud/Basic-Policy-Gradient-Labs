@@ -7,7 +7,15 @@ from visu.visu_policies import final_show
 from environment import make_env
 
 
-def plot_critic_from_name(folder, file_name, policy):
+def plot_critic_from_name(folder, file_name, policy) -> None:
+    """
+    Plot a critic from a file present into the given directory
+    A policy is given to plot Q(s,a) critic using this policy for a
+    :param folder: the given directory
+    :param file_name: the name of the file
+    :param policy: the given policy
+    :return: nothing
+    """
     complete_name = folder + file_name
     pw = PolicyWrapper(GenericNet(), "", "")
     critic = pw.load(complete_name)
@@ -27,13 +35,31 @@ def plot_critic_from_name(folder, file_name, policy):
             plot_vfunction_ND(critic, env, plot=False, save_figure=True, figname=picture_name, foldername='/critics/')
 
 
-def plot_critics_from_directory(folder, policy):
+def plot_critics_from_directory(folder, policy) -> None:
+    """
+    Plot all the critics present into the given directory
+    A policy is given to plot Q(s,a) critic using this policy for a
+    :param folder: the given directory
+    :param policy: the given policy
+    :return: nothing
+    """
     listdir = os.listdir(folder)
     for critic_file in listdir:
         plot_critic_from_name(folder, critic_file, policy)
 
 
 def plot_critic(simu, critic, policy, study, default_string, num):
+    """
+    The main entry point for plotting a critic: determine which plotting function to call depending on the
+    environment parameters
+    :param simu: the simulation, which contains information about the environment, obs_size...
+    :param critic: the critic to be plotted
+    :param policy: the policy used to plot Q(s,a)
+    :param study: the name of the current study
+    :param default_string: a string used to further specify the file name
+    :param num: a number to plot several critics from the same configuration
+    :return: nothing
+    """
     picturename = str(num) + '_critic_' + study + default_string + simu.name + '.pdf'
     env = simu.env
     obs_size = simu.obs_size
@@ -52,7 +78,18 @@ def plot_critic(simu, critic, policy, study, default_string, num):
 
 
 # visualization of the V function for a 2D environment like continuous mountain car. The action does not matter.
-def plot_vfunction_2D(vfunction, env, plot=True, figname="vfunction.pdf", foldername='/plots/', save_figure=True, definition=50):
+def plot_vfunction_2D(vfunction, env, plot=True, figname="vfunction.pdf", foldername='/plots/', save_figure=True, definition=50) -> None:
+    """
+    Plot a value function in a 2-dimensional state space
+    :param vfunction: the value function to be plotted
+    :param env: the environment
+    :param plot: whether the plot should be interactive
+    :param figname: the name of the file where to plot the function
+    :param foldername: the name of the folder where to put the file
+    :param save_figure: whether the plot should be saved into a file
+    :param definition: the resolution of the plot
+    :return: nothing
+    """
     if env.observation_space.shape[0] != 2:
         raise(ValueError("Observation space dimension {}, should be 2".format(env.observation_space.shape[0])))
 
@@ -75,7 +112,20 @@ def plot_vfunction_2D(vfunction, env, plot=True, figname="vfunction.pdf", folder
 
 
 # visualization of the V function for a ND environment like cartpole. The action does not matter.
-def plot_vfunction_ND(vfunction, env, plot=True, figname="vfunction.pdf", foldername='/plots/', save_figure=True, definition=50):
+def plot_vfunction_ND(vfunction, env, plot=True, figname="vfunction.pdf", foldername='/plots/', save_figure=True, definition=50) -> None:
+    """
+    Plot a value function in a N-dimensional state space
+    The N-dimensional state space is projected into its first two dimensions.
+    A FeatureInverter wrapper should be used to select which features to put first so as to plot them
+    :param vfunction: the value function to be plotted
+    :param env: the environment
+    :param plot: whether the plot should be interactive
+    :param figname: the name of the file where to plot the function
+    :param foldername: the name of the folder where to put the file
+    :param save_figure: whether the plot should be saved into a file
+    :param definition: the resolution of the plot
+    :return: nothing
+    """
     if env.observation_space.shape[0] <= 2:
         raise(ValueError("Observation space dimension {}, should be > 2".format(env.observation_space.shape[0])))
 
@@ -101,7 +151,18 @@ def plot_vfunction_ND(vfunction, env, plot=True, figname="vfunction.pdf", folder
 
 
 # visualization of the Q function for a 1D environment like 1D Toy with continuous actions
-def plot_qfunction_1D(qfunction, env, plot=True, figname="qfunction_1D.pdf", foldername='/plots/', save_figure=True, definition=50):
+def plot_qfunction_1D(qfunction, env, plot=True, figname="qfunction_1D.pdf", foldername='/plots/', save_figure=True, definition=50) -> None:
+    """
+    Plot a q function in a 1-dimensional state space. The second dimension covers the whole action space
+    :param qfunction: the action value function to be plotted
+    :param env: the environment
+    :param plot: whether the plot should be interactive
+    :param figname: the name of the file where to plot the function
+    :param foldername: the name of the folder where to put the file
+    :param save_figure: whether the plot should be saved into a file
+    :param definition: the resolution of the plot
+    :return: nothing
+    """
     if env.observation_space.shape[0] != 1:
         raise(ValueError("The observation space dimension is {}, should be 1".format(env.observation_space.shape[0])))
 
@@ -127,7 +188,20 @@ def plot_qfunction_1D(qfunction, env, plot=True, figname="qfunction_1D.pdf", fol
 
 # visualization of the Q function for a 2D environment like continuous mountain car.
 # The action is the one from the policy sent as parameter
-def plot_qfunction_2D(qfunction, policy, env, plot=True, figname="qfunction_cont.pdf", foldername='/plots/', save_figure=True, definition=50):
+def plot_qfunction_2D(qfunction, policy, env, plot=True, figname="qfunction_cont.pdf", foldername='/plots/', save_figure=True, definition=50) -> None:
+    """
+    Plot a q function in a 2-dimensional state space using a given policy to chose an action everywhere in the state space
+    :param qfunction: the action value function to be plotted
+    :param policy: the policy specifying the action to be plotted
+    :param env: the policy specifying the action to be plotted
+    :param env: the environment
+    :param plot: whether the plot should be interactive
+    :param figname: the name of the file where to plot the function
+    :param foldername: the name of the folder where to put the file
+    :param save_figure: whether the plot should be saved into a file
+    :param definition: the resolution of the plot
+    :return: nothing
+    """
     if env.observation_space.shape[0] != 2:
         raise(ValueError("The observation space dimension is {}, whereas it should be 2".format(env.observation_space.shape[0])))
 
@@ -152,7 +226,21 @@ def plot_qfunction_2D(qfunction, policy, env, plot=True, figname="qfunction_cont
 
 # visualization of the Q function for a ND environment like continuous cart pole.
 # The action is the one from the policy sent as parameter
-def plot_qfunction_ND(qfunction, policy, env, plot=True, figname="qfunction_cont.pdf", foldername='/plots/', save_figure=True, definition=50):
+def plot_qfunction_ND(qfunction, policy, env, plot=True, figname="qfunction_cont.pdf", foldername='/plots/', save_figure=True, definition=50) -> None:
+    """
+    Plot a q function in a N-dimensional state space using a given policy to chose an action everywhere in the state space
+    The N-dimensional state space is projected into its first two dimensions.
+    A FeatureInverter wrapper should be used to select which features to put first so as to plot them
+    :param qfunction: the action value function to be plotted
+    :param policy: the policy specifying the action to be plotted
+    :param env: the environment
+    :param plot: whether the plot should be interactive
+    :param figname: the name of the file where to plot the function
+    :param foldername: the name of the folder where to put the file
+    :param save_figure: whether the plot should be saved into a file
+    :param definition: the resolution of the plot
+    :return: nothing
+    """
     if env.observation_space.shape[0] <= 2:
         raise(ValueError("Observation space dimension {}, should be > 2".format(env.observation_space.shape[0])))
 
@@ -180,7 +268,19 @@ def plot_qfunction_ND(qfunction, policy, env, plot=True, figname="qfunction_cont
 
 # visualization of the Q function for a 2D environment like continuous mountain car.
 # The action is given as parameter
-def plot_qfunction_cont_act(qfunction, action, env, plot=True, figname="qfunction_cont.pdf", foldername='/plots/', save_figure=True, definition=50):
+def plot_qfunction_cont_act(qfunction, action, env, plot=True, figname="qfunction_cont.pdf", foldername='/plots/', save_figure=True, definition=50) -> None:
+    """
+    Plot a q function using the same action everywhere in the state space
+    :param qfunction: the action value function to be plotted
+    :param action: the action to be plotted
+    :param env: the environment
+    :param plot: whether the plot should be interactive
+    :param figname: the name of the file where to plot the function
+    :param foldername: the name of the folder where to put the file
+    :param save_figure: whether the plot should be saved into a file
+    :param definition: the resolution of the plot
+    :return: nothing
+    """
     if env.observation_space.shape[0] < 2:
         raise(ValueError("The observation space dimension is {}, whereas it should be 2".format(env.observation_space.shape[0])))
 
@@ -200,14 +300,3 @@ def plot_qfunction_cont_act(qfunction, action, env, plot=True, figname="qfunctio
     plt.scatter([0], [0])
     x_label, y_label = getattr(env.observation_space, "names", ["x", "y"])
     final_show(save_figure, plot, figname, x_label, y_label, "Q Function or current policy", foldername)
-
-if __name__ == '__main__':
-    directory = os.getcwd() + '/policies/'
-    pw = PolicyWrapper(GenericNet(), "", "")
-    pol = pw.load(directory + "CartPole-v0#top1_198.6#198.6.pt")
-    plot_critics_from_directory('./critics/', pol)
-    if False:
-        plot_critic_from_name('./critics/', 'CartPole-v0#moi#244.26543.pt', pol)
-
-
-

@@ -5,6 +5,9 @@ from critics.critic_network import CriticNetwork
 
 
 class VNetwork(CriticNetwork):
+    """
+    A value function critic network
+    """
     def __init__(self, l1, l2, l3, l4, learning_rate):
         super(VNetwork, self).__init__()
         self.relu = nn.ReLU()
@@ -15,7 +18,7 @@ class VNetwork(CriticNetwork):
 
     def forward(self, state):
         """
-        Computes the value from a state, going through the network
+        Compute the value from a state, going through the network
         :param state: the given state(s)
         :return: the corresponding values, as a torch tensor
         """
@@ -28,7 +31,7 @@ class VNetwork(CriticNetwork):
 
     def evaluate(self, state, action=None):
         """
-         Returns the critic value at a given state, as a numpy structure
+         Return the critic value at a given state, as a numpy structure
          :param state: the given state
          :param action: a given action. Should not be specified, added as a parameter to be consistent with Q-networks
          :return: the value
@@ -38,7 +41,7 @@ class VNetwork(CriticNetwork):
 
     def compute_bootstrap_target(self, reward, done, next_state, next_action, gamma):
         """
-        Computes the target value using the bootstrap (Bellman backup) equation
+        Compute the target value using the bootstrap (Bellman backup) equation
         The target is then used to train the critic
         :param reward: the reward value in the sample(s)
         :param done: whether this is the final step
@@ -53,7 +56,7 @@ class VNetwork(CriticNetwork):
 
     def compute_loss_to_target(self, state, action, target):
         """
-        Computes the MSE between a target value and the critic value for the state action pair(s)
+        Compute the MSE between a target value and the critic value for the state action pair(s)
         :param state: a state or vector of state
         :param action: an action. Should not be specified, added as a parameter to be consistent with Q-networks
         :param target: the target value

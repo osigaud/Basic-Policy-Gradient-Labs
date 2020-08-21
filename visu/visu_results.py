@@ -1,35 +1,21 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
-import torch
 from arguments import make_full_string, get_args
 import seaborn as sns
 sns.set()
 
-
-
-# old stuff
-def plot_durations(durations):
-    plt.figure(2)
-    plt.clf()
-    durations_t = torch.FloatTensor(durations)
-    plt.title('Training...')
-    plt.xlabel('Episode')
-    plt.ylabel('Duration')
-    plt.plot(durations_t.numpy())
-    # Take 100 episode averages and plot them too
-    if len(durations_t) >= 100:
-        means = durations_t.unfold(0, 100, 1).mean(1).view(-1)
-        means = torch.cat((torch.zeros(99), means))
-        plt.plot(means.numpy())
-    plt.pause(0.001)  # pause a bit so that plots are updated
+# This file contains variance functions to plot results
+# Only a few of them are used and up-to-date
+# The others are left here as examples of how to design new plotting functions
 
 
 def plot_data(filename, label):
     """
-    generic plot function to return a curve from a file with an index and a number per line
+    Generic plot function to return a curve from a file with an index and a number per line
     importantly, several datasets can be stored into the same file
     and the curve will contain a variance information based on the repetition
+    Retrieving the variance information is based on pandas
     :param filename: the file containing the data
     :param label: the label to be shown in the plot (a string)
     :return: a curve with some variance and a label, embedded in plt. 
@@ -47,7 +33,7 @@ def plot_data(filename, label):
 
 def plot_from_file(filename, label) -> None:
     """
-    generic plot function to return a curve from a file with just one number per line
+    Generic plot function to return a curve from a file with just one number per line
     :param filename: the file containing the data
     :param label: the label to be shown in the plot (a string)
     :return: a curve with a label, embedded in plt.
@@ -58,57 +44,7 @@ def plot_from_file(filename, label) -> None:
     plt.plot(data, label=label)
 
 
-# to be refreshed
-def exploit_beta(params):
-    path = os.getcwd() + "/data/save"
-    for beta in [0.1, 0.5, 1.0, 5.0, 10.0]:
-        name = "/progress_" + str(beta) + '.txt'
-        plot_data(path + name, str(beta))
-
-    plot_data(path + "/progress.txt", "normalized discounted rewards")
-    plt.xlabel("Episodes")
-    plt.ylabel("Duration")
-    plt.legend(loc="lower right")  # , bbox_to_anchor=(1, 0.5)
-    plt.savefig(path + '/../results/' + make_full_string(params) + '.pdf')
-    plt.show()
-
-
-# specific to AC study
-def exploit_duration_ac():
-    path = os.getcwd() + "/data/save"
-    plot_data(path + "/progress_ac.txt", "durations")
-
-    plt.xlabel("Episodes")
-    plt.ylabel("Duration")
-    plt.legend(loc="lower right")  # , bbox_to_anchor=(1, 0.5)
-    plt.savefig(path + '/../results/durations_ac.pdf')
-    plt.show()
-
-
-# generic
-def exploit_duration_regress(params):
-    path = os.getcwd() + "/data/save"
-    plot_data(path + "/duration_regress_" + params.env_name + '.txt', "durations")
-
-    plt.xlabel("Episodes")
-    plt.ylabel("Duration")
-    plt.legend(loc="lower right")  # , bbox_to_anchor=(1, 0.5)
-    plt.savefig(path + '/../results/durations_regress_' + make_full_string(params) + '.pdf')
-    plt.show()
-
-
-def exploit_reward_regress(params):
-    path = os.getcwd() + "/data/save"
-    plot_data(path + "/reward_regress_" + params.env_name + '.txt', "reward")
-    plt.xlabel("Episodes")
-    plt.ylabel("Reward")
-    plt.legend(loc="lower right")  # , bbox_to_anchor=(1, 0.5)
-    plt.title(params.env_name)
-    plt.savefig(path + '/../results/rewards_regress_' + make_full_string(params) + '.pdf')
-    plt.show()
-
-
-def exploit_duration_full(params):
+def exploit_duration_full(params) -> None:
     path = os.getcwd() + "/data/save"
     study = params.gradients
     for i in range(len(study)):
@@ -122,7 +58,7 @@ def exploit_duration_full(params):
     plt.show()
 
 
-def exploit_critic_loss_full(params):
+def exploit_critic_loss_full(params) -> None:
     path = os.getcwd() + "/data/save"
     study = params.gradients
     for i in range(len(study)):
@@ -136,7 +72,7 @@ def exploit_critic_loss_full(params):
     plt.show()
 
 
-def exploit_policy_loss_full(params):
+def exploit_policy_loss_full(params) -> None:
     path = os.getcwd() + "/data/save"
     study = params.gradients
     for i in range(len(study)):
@@ -150,7 +86,30 @@ def exploit_policy_loss_full(params):
     plt.show()
 
 
-def exploit_nstep(params):
+# generic
+def exploit_duration_regress(params) -> None:
+    path = os.getcwd() + "/data/save"
+    plot_data(path + "/duration_regress_" + params.env_name + '.txt', "durations")
+
+    plt.xlabel("Episodes")
+    plt.ylabel("Duration")
+    plt.legend(loc="lower right")  # , bbox_to_anchor=(1, 0.5)
+    plt.savefig(path + '/../results/durations_regress_' + make_full_string(params) + '.pdf')
+    plt.show()
+
+
+def exploit_reward_regress(params) -> None:
+    path = os.getcwd() + "/data/save"
+    plot_data(path + "/reward_regress_" + params.env_name + '.txt', "reward")
+    plt.xlabel("Episodes")
+    plt.ylabel("Reward")
+    plt.legend(loc="lower right")  # , bbox_to_anchor=(1, 0.5)
+    plt.title(params.env_name)
+    plt.savefig(path + '/../results/rewards_regress_' + make_full_string(params) + '.pdf')
+    plt.show()
+
+
+def exploit_nstep(params) -> None:
     path = os.getcwd() + "/data/save"
     steps = [1, 5, 10, 15, 20]
 
@@ -160,14 +119,13 @@ def exploit_nstep(params):
         for i in steps:
             mean, std = plot_data(path + '/' + j + '_nstep_' + str(i) + '_'
                                   + params.env_name + '.txt', j + '_nstep_' + str(i))
-            # print('n:', i, ' mean :', mean[-1], ' std:', std[-1])
             mean_list.append(mean[-1])
             std_list.append(std[-1])
 
         plt.title(params.env_name)
         plt.xlabel("Episodes")
         plt.ylabel(j)
-        plt.legend(loc="lower right")  # , bbox_to_anchor=(1, 0.5)
+        plt.legend(loc="lower right")
         plt.savefig(path + '/../results/' + j + '_nstep_' + make_full_string(params) + '.pdf')
         plt.show()
 
@@ -176,29 +134,45 @@ def exploit_nstep(params):
         plt.title(params.env_name)
         plt.xlabel("N in N-step")
         plt.ylabel('variance, bias')
-        plt.legend(loc="lower right")  # , bbox_to_anchor=(1, 0.5)
+        plt.legend(loc="lower right")
         plt.savefig(path + '/../results/bias_variance_' + j + '_' + make_full_string(params) + '.pdf')
         plt.show()
 
 
-def check_nstep(params):
+# to be refreshed
+def exploit_beta(params) -> None:
+    path = os.getcwd() + "/data/save"
+    for beta in [0.1, 0.5, 1.0, 5.0, 10.0]:
+        name = "/progress_" + str(beta) + '.txt'
+        plot_data(path + name, str(beta))
+
+    plot_data(path + "/progress.txt", "normalized discounted rewards")
+    plt.xlabel("Episodes")
+    plt.ylabel("Duration")
+    plt.legend(loc="lower right")  # , bbox_to_anchor=(1, 0.5)
+    plt.savefig(path + '/../results/' + make_full_string(params) + '.pdf')
+    plt.show()
+
+
+def check_nstep(params) -> None:
     path = os.getcwd() + "/data/save"
     study1 = 'batchTD'
     for j in ['loss', 'reward', 'duration']:
         for i in [1]:
-            mean, std = plot_data(path + "/" + j + '_nstep_' + str(i) + '_' + params.env_name + '.txt', j + '_nstep_' + str(i))
+            file_name = path + "/" + j + '_nstep_' + str(i) + '_' + params.env_name + '.txt'
+            mean, std = plot_data(file_name, j + '_nstep_' + str(i))
             print('n:', i, ' mean :', mean[-1], ' std:', std[-1])
         plot_data(path + "/" + j + '_' + study1 + '_' + params.env_name + '.txt', 'loss ' + study1)
 
         plt.title(params.env_name)
         plt.xlabel("Episodes")
         plt.ylabel(j)
-        plt.legend(loc="lower right")  # , bbox_to_anchor=(1, 0.5)
+        plt.legend(loc="lower right")
         plt.savefig(path + '/../results/' + j + '_nstep_check.pdf')
         plt.show()
 
 
-def exploit_nstep_diff(params):
+def exploit_nstep_diff(params) -> None:
     path = os.getcwd() + "/data/save"
     steps = [1, 5, 10, 20]
     mean_list = []
@@ -212,7 +186,7 @@ def exploit_nstep_diff(params):
     plt.title(params.env_name)
     plt.xlabel("Episodes")
     plt.ylabel("diff")
-    plt.legend(loc="lower right")  # , bbox_to_anchor=(1, 0.5)
+    plt.legend(loc="lower right")
     plt.savefig(path + '/../results/diff_nstep_' + make_full_string(params) + '.pdf')
     plt.show()
 
@@ -226,7 +200,7 @@ def exploit_nstep_diff(params):
     plt.show()
 
 
-def custom_plot(params):
+def custom_plot(params) -> None:
     path = os.getcwd() + "/data/save"
     study = ['batchTD', 'batchMC', 'nstep']
     valid = ['', '_valid']
@@ -242,12 +216,12 @@ def custom_plot(params):
         plt.ylabel(c)
         plt.xlabel("Episodes")
 
-        plt.legend(loc="lower right")  # , bbox_to_anchor=(1, 0.5)
+        plt.legend(loc="lower right")
         plt.savefig(path + '/../results/' + c + '_' + make_full_string(params) + '.pdf')
         plt.show()
 
 
-def exploit_reward_full(params):
+def exploit_reward_full(params) -> None:
     path = os.getcwd() + "/data/save"
     study = params.gradients
     for i in range(len(study)):
@@ -256,12 +230,18 @@ def exploit_reward_full(params):
     plt.title(params.env_name)
     plt.xlabel("Episodes")
     plt.ylabel("Reward")
-    plt.legend(loc="lower right")  # , bbox_to_anchor=(1, 0.5)
+    plt.legend(loc="lower right")
     plt.savefig(path + '/../results/rewards_' + make_full_string(params) + '.pdf')
     plt.show()
 
 
-def main_exploit(params):
+def plot_results(params) -> None:
+    """
+    Plot the results from a study previously saved in files in "./data/save"
+    :param params: parameters of the study
+    :return: nothing
+    """
+    assert params.study_name in ['pg', 'regress', 'loss', 'nstep', 'diff', 'target'], 'unsupported study name'
     if params.study_name == "pg":
         exploit_duration_full(params)
         exploit_reward_full(params)
@@ -270,8 +250,6 @@ def main_exploit(params):
     elif params.study_name == "regress":
         exploit_duration_regress(params)
         exploit_reward_regress(params)
-    elif params.study_name == "ac":
-        exploit_duration_ac()
     elif params.study_name == "loss":
         exploit_critic_loss_full(params)
         exploit_policy_loss_full(params)
@@ -281,23 +259,9 @@ def main_exploit(params):
         exploit_nstep_diff(params)
     elif params.study_name == "target":
         custom_plot(params)
-    else:
-        print("exploit unknown case :", params.study_name)
+
 
 if __name__ == '__main__':
     args = get_args()
     print(args)
-    # args.gradients = ["baseline"]
-    # os.chdir("./save")
-    # args.env_name = "Pendulum-v0"
-    main_exploit(args)
-    # args.env_name = "CartPole-v0"
-    # exploit_critic_loss_full(args)
-    # exploit_reward_full(args)
-    # custom_plot('CartPoleContinuous-v0')
-    # check_nstep("CartPoleContinuous-v0")
-    # exploit_nstep_diff("CartPoleContinuous-v0")
-    # check_nstep("CartPole-v0")
-    # exploit_nstep("CartPoleContinuous-v0")
-    # main_exploit("CartPoleContinuous-v0", 'pg', ['q_baseline'])
-    # main_exploit("CartPoleContinuous-v0",'loss', ['batchTD', 'batchMC','batchTD_valid', 'batchMC_valid'])
+    plot_results(args)

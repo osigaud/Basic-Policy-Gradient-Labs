@@ -4,32 +4,45 @@ import matplotlib.pyplot as plt
 import random
 
 
-def final_show(save_figure, plot, figname, x_label, y_label, title, dir):
+def final_show(save_figure, plot, figure_name, x_label, y_label, title, directory) -> None:
     """
     Finalize all plots, adding labels and putting the corresponding file in the specified directory
-    :param save_figure:
-    :param plot:
-    :param figname:
-    :param x_label:
-    :param y_label:
-    :param title:
-    :param dir:
-    :return:
+    :param save_figure: boolean stating whether the figure should be saved
+    :param plot: whether the plot should be shown interactively
+    :param figure_name: the name of the file where to save the figure
+    :param x_label: label on the x axis
+    :param y_label: label on the y axis
+    :param title: title of the figure
+    :param directory: the directory where to save the file
+    :return: nothing
     """
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)
     if save_figure:
-        directory = os.getcwd() + '/data' + dir
+        directory = os.getcwd() + '/data' + directory
         if not os.path.exists(directory):
             os.makedirs(directory)
-        plt.savefig(directory + figname)
+        plt.savefig(directory + figure_name)
     if plot:
         plt.show()
     plt.close()
 
 
-def plot_policy(policy, env, deterministic, name, study_name, default_string, num, plot=False):
+def plot_policy(policy, env, deterministic, name, study_name, default_string, num, plot=False) -> None:
+    """
+    The main entry point for plotting a policy: determine which plotting function to call depending on the
+    environment parameters
+    :param policy: the policy to be plotted
+    :param env: the evaluation environment
+    :param deterministic: whether the deterministic version of the policy should be plotted
+    :param name: '_ante_' or '_post_' to determine if the policy was plotted before or after training
+    :param study_name: the name of the study
+    :param default_string: a default string to further specify the plot name
+    :param num: un number to save several files corresponding to the same configuration
+    :param plot: whether the plot should be interactive
+    :return: nothing
+    """
     obs_size = env.observation_space.shape[0]
     actor_picture_name = str(num) + '_actor_' + study_name + '_' + default_string + name + '.pdf'
     if obs_size == 1:
@@ -40,16 +53,17 @@ def plot_policy(policy, env, deterministic, name, study_name, default_string, nu
         plot_policy_ND(policy, env, deterministic, plot, figname=actor_picture_name)
 
 
-def plot_policy_1D(policy, env, deterministic, plot=True, figname="policy_1D.pdf", save_figure=True, definition=50):
+def plot_policy_1D(policy, env, deterministic, plot=True, figname="policy_1D.pdf", save_figure=True, definition=50) -> None:
     """
     visualization of the policy for a 1D environment like 1D Toy with continuous actions
-    :param policy:
-    :param env:
-    :param plot:
-    :param figname:
-    :param save_figure:
-    :param definition:
-    :return:
+    :param policy: the policy to be plotted
+    :param env: the evaluation environment
+    :param deterministic: whether the deterministic version of the policy should be plotted
+    :param plot: whether the plot should be interactive
+    :param figname: the name of the file to save the figure
+    :param save_figure: whether the figure should be saved
+    :param definition: the resolution of the plot
+    :return: nothing
     """
     if env.observation_space.shape[0] != 1:
         raise(ValueError("The observation space dimension is {}, should be 1".format(env.observation_space.shape[0])))
@@ -71,9 +85,18 @@ def plot_policy_1D(policy, env, deterministic, plot=True, figname="policy_1D.pdf
     final_show(save_figure, plot, figname, x_label, y_label, "1D Policy", '/plots/')
 
 
-# visualization of the policy for a 2D environment like continuous mountain car.
-def plot_policy_2D(policy, env, deterministic, plot=True, figname='stoch_actor.pdf', save_figure=True, definition=50):
-    """Portrait the actor"""
+def plot_policy_2D(policy, env, deterministic, plot=True, figname='stoch_actor.pdf', save_figure=True, definition=50) -> None:
+    """
+    Plot a policy for a 2D environment like continuous mountain car
+    :param policy: the policy to be plotted
+    :param env: the evaluation environment
+    :param deterministic: whether the deterministic version of the policy should be plotted
+    :param plot: whether the plot should be interactive
+    :param figname: the name of the file to save the figure
+    :param save_figure: whether the figure should be saved
+    :param definition: the resolution of the plot
+    :return: nothing
+    """
     if env.observation_space.shape[0] != 2:
         raise(ValueError("Observation space dimension {}, should be 2".format(env.observation_space.shape[0])))
 
@@ -98,9 +121,17 @@ def plot_policy_2D(policy, env, deterministic, plot=True, figname='stoch_actor.p
     final_show(save_figure, plot, figname, x_label, y_label, "Actor phase portrait", '/plots/')
 
 
-# visualization of the policy for a 2D environment like continuous mountain car.
-def plot_proba_policy(policy, env, plot=True, figname='proba_actor.pdf', save_figure=True, definition=50):
-    """Portrait the actor"""
+def plot_bernoulli_policy(policy, env, plot=True, figure_name='proba_actor.pdf', save_figure=True, definition=50) -> None:
+    """
+    Plot the underlying thresholds of a Bernoulli policy for a 2D environment like continuous mountain car.
+    :param policy: the policy to be plotted
+    :param env: the evaluation environment
+    :param plot: whether the plot should be interactive
+    :param figure_name: the name of the file to save the figure
+    :param save_figure: whether the figure should be saved
+    :param definition: the resolution of the plot
+    :return: nothing
+    """
     if env.observation_space.shape[0] != 2:
         raise(ValueError("Observation space dimension {}, should be 2".format(env.observation_space.shape[0])))
 
@@ -114,7 +145,6 @@ def plot_proba_policy(policy, env, plot=True, figname='proba_actor.pdf', save_fi
             state = np.array([[x, y]])
             probs = policy.forward(state)
             action = probs.data.numpy().astype(float)
-            # print(probs, action)
             portrait[definition - (1 + index_y), index_x] = action
     plt.figure(figsize=(10, 10))
     plt.imshow(portrait, cmap="inferno", extent=[x_min, x_max, y_min, y_max], aspect='auto')
@@ -122,12 +152,21 @@ def plot_proba_policy(policy, env, plot=True, figname='proba_actor.pdf', save_fi
     # Add a point at the center
     plt.scatter([0], [0])
     x_label, y_label = getattr(env.observation_space, "names", ["x", "y"])
-    final_show(save_figure, plot, figname, x_label, y_label, "Actor phase portrait", '/plots/')
+    final_show(save_figure, plot, figure_name, x_label, y_label, "Actor phase portrait", '/plots/')
 
 
-# visualization of the policy for a ND environment like pendulum or cartpole
-def plot_policy_ND(policy, env, deterministic, plot=True, figname='stoch_actor.pdf', save_figure=True, definition=50):
-    """Portrait the actor"""
+def plot_policy_ND(policy, env, deterministic, plot=True, figname='stoch_actor.pdf', save_figure=True, definition=50) -> None:
+    """
+    Plot a policy for a ND environment like pendulum or cartpole
+    :param policy: the policy to be plotted
+    :param env: the evaluation environment
+    :param deterministic: whether the deterministic version of the policy should be plotted
+    :param plot: whether the plot should be interactive
+    :param figname: the name of the file to save the figure
+    :param save_figure: whether the figure should be saved
+    :param definition: the resolution of the plot
+    :return: nothing
+    """
     if env.observation_space.shape[0] <= 2:
         raise(ValueError("Observation space dimension {}, should be > 2".format(env.observation_space.shape[0])))
 

@@ -11,7 +11,7 @@ def make_simu_from_params(params):
     """
     Creates the environment, adding the required wrappers
     :param params: the hyper-parameters of the run, specified in arguments.py or in the command line
-    :return:
+    :return: a simulation object
     """
     env_name = params.env_name
     env = make_env(env_name, params.policy_type, params.max_episode_steps, params.env_obs_space_name)
@@ -24,7 +24,7 @@ def make_simu_from_wrapper(pw, params):
     Used when loading an agent from an external file, through a policy wrapper
     :param pw: the policy wrapper specifying the environment
     :param params: the hyper-parameters of the run, specified in arguments.py or in the command line
-    :return:
+    :return: a simulation object
     """
     env_name = pw.env_name
     params.env_name = env_name
@@ -102,7 +102,7 @@ class Simu:
         """
         state = self.reset(render)
         episode = Episode()
-        for t in count():
+        for _ in count():
             action = policy.select_action(state)
             next_state, _, done = self.take_step(state, action, episode, render)
             state = next_state
@@ -129,9 +129,9 @@ class Simu:
         """
         if False:
             if params.policy_type == "normal":
-                plot_normal_histograms(policy, 0)
+                plot_normal_histograms(policy, 0, 'CartPoleContinuous-v0')
             else:
-                plot_weight_histograms(policy, 0)
+                plot_weight_histograms(policy, 0, 'CartPoleContinuous-v0')
         for cycle in range(params.nb_cycles):
             batch = self.make_monte_carlo_batch(params.nb_trajs, params.render, policy)
 
@@ -155,12 +155,12 @@ class Simu:
             total_reward = self.evaluate_episode(policy)
             if False:
                 if params.policy_type == "normal":
-                    plot_normal_histograms(policy, cycle + 1)
+                    plot_normal_histograms(policy, cycle + 1, 'CartPoleContinuous-v0')
                 else:
-                    plot_weight_histograms(policy, cycle + 1)
+                    plot_weight_histograms(policy, cycle + 1, 'CartPoleContinuous-v0')
             # plot_trajectory(batch2, self.env, cycle+1)
 
-            # save best reward agent (no need for average, the policy is deterministic)
+            # save best reward agent (no need for averaging if the policy is deterministic)
             if self.best_reward < total_reward:
                 self.best_reward = total_reward
                 pw.save(self.best_reward)

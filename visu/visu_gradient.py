@@ -6,12 +6,12 @@ def visu_replay_data(list_states, list_targets) -> None:
     visualize, for a list of states plotted for their first dimension, 
     the corresponding target value for the critic as computed either with
     a TD or a MC method.
-    in the case of the MC method, it gives the value V(s) of being in that state
-    in the TD case, the target is given by the local temporal difference error
+    In the MC case, it gives the value V(s) of being in that state
+    In the TD case, the target is given by the local temporal difference error
     the state is assumed 4-dimensional (cartpole case)
     :param list_states: a list of states, usually taken from a batch
     :param list_targets: a list of target values, usually computed from a batch
-    :return: a picture of the data
+    :return: nothing
     """
     bx1, bx2, bx3, bx4 = zip(*list_states)
     plt.figure(figsize=(10, 4))
@@ -29,7 +29,7 @@ def visu_loss_along_time(cpts, losses, loss_file_name) -> None:
     :param cpts: step counter
     :param losses: the successive values of the loss
     :param loss_file_name: the file where to store the results
-    :return: plots an image
+    :return: nothing
     """
     fig, ax = plt.subplots(figsize=(16, 10))
     plt.cla()

@@ -11,7 +11,7 @@ that makes standard policy gradient very inefficient on these environments.
 
 def perform_expert_episodes_bangbang(simu, batch, render=False):
     """
-    Builds a batch of 20 expert episodes playing a simple bangbang policy (go left first, then go right)
+    Build a batch of 20 expert episodes playing a simple bangbang policy (go left first, then go right)
     :param simu: the simulation
     :param batch: the batch to be filled
     :param render: whether the step is displayed or not (True or False)
@@ -37,7 +37,7 @@ def perform_expert_episodes_bangbang(simu, batch, render=False):
 
 def perform_expert_episodes_continuous(simu, batch, render=False):
     """
-    Builds a batch of 20 expert episodes playing a simple policy close to bangbang (go left first, then go right)
+    Build a batch of 20 expert episodes playing a simple policy close to bangbang (go left first, then go right)
     :param simu: the simulation
     :param batch: the batch to be filled
     :param render: whether the step is displayed or not (True or False)

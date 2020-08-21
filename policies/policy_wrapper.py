@@ -31,8 +31,8 @@ class PolicyWrapper:
         """
         fields = filename.split('#')
         tmp = fields[0]
-        envname = tmp.split('/')
-        self.env_name = envname[-1]
+        env_name = tmp.split('/')
+        self.env_name = env_name[-1]
         self.team_name = fields[1]
         net = self.policy.load_model(filename)
         return net
