@@ -127,11 +127,6 @@ class Simu:
         :param beta: a specific parameter for beta-parametrized values
         :return: nothing
         """
-        if False:
-            if params.policy_type == "normal":
-                plot_normal_histograms(policy, 0, 'CartPoleContinuous-v0')
-            else:
-                plot_weight_histograms(policy, 0, 'CartPoleContinuous-v0')
         for cycle in range(params.nb_cycles):
             batch = self.make_monte_carlo_batch(params.nb_trajs, params.render, policy)
 
@@ -152,11 +147,6 @@ class Simu:
 
             # policy evaluation part
             total_reward = self.evaluate_episode(policy)
-            if False:
-                if params.policy_type == "normal":
-                    plot_normal_histograms(policy, cycle + 1, 'CartPoleContinuous-v0')
-                else:
-                    plot_weight_histograms(policy, cycle + 1, 'CartPoleContinuous-v0')
             # plot_trajectory(batch2, self.env, cycle+1)
 
             # save best reward agent (no need for averaging if the policy is deterministic)

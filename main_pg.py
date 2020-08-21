@@ -11,7 +11,11 @@ from visu.visu_policies import plot_policy
 from visu.visu_results import plot_results
 
 
-def create_data_folders():
+def create_data_folders() -> None:
+    """
+    Create folders where to save output files if they are not already there
+    :return: nothing
+    """
     if not os.path.exists("data/save"):
         os.mkdir("./data")
         os.mkdir("./data/save")
@@ -24,6 +28,12 @@ def create_data_folders():
 
 
 def set_files(study_name, env_name):
+    """
+    Create files to save the policy loss and the critic loss
+    :param study_name: the name of the study
+    :param env_name: the name of the environment
+    :return:
+    """
     policy_loss_name = "data/save/policy_loss_" + study_name + '_' + env_name + ".txt"
     policy_loss_file = open(policy_loss_name, "w")
     critic_loss_name = "data/save/critic_loss_" + study_name + '_' + env_name + ".txt"
@@ -31,7 +41,12 @@ def set_files(study_name, env_name):
     return policy_loss_file, critic_loss_file
 
 
-def study_pg(params):
+def study_pg(params) -> None:
+    """
+    Start a study of the policy gradient algorithms
+    :param params: the parameters of the study
+    :return: nothing
+    """
     assert params.policy_type in ['bernoulli', 'normal', 'squashedGaussian'], 'unsupported policy type'
     chrono = Chrono()
     study = params.gradients  # ["sum", "discount", "normalize", "baseline"]  #
@@ -60,19 +75,20 @@ def study_pg(params):
 
             simu.train(pw, params, policy, critic, policy_loss_file, critic_loss_file, study[i])
             plot_policy(policy, simu.env, True, simu.name, study[i], '_post_', j, plot=False)
+            if False:
+                if params.policy_type == "normal":
+                    plot_normal_histograms(policy, j, simu.name)
+                else:
+                    plot_weight_histograms(policy, j, simu.name)
         plot_critic(simu, critic, policy, study[i], '_post_', j)
         critic.save_model('data/critics/' + params.env_name + '#' + params.team_name + '#' + study[i] + str(j) + '.pt')
     chrono.stop()
 
 
-def main():
+if __name__ == '__main__':
     args = get_args()
     print(args)
     create_data_folders()
     args.gradients = ['discount']
     study_pg(args)
     plot_results(args)
-
-
-if __name__ == '__main__':
-    main()
