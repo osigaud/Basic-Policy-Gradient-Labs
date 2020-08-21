@@ -85,7 +85,6 @@ class Simu:
         total_reward = 0
         for _ in count():
             action = policy.select_action(state, deterministic)
-            # print(action)
             next_state, reward, done, _ = self.env.step(action)
             total_reward += reward
             state = next_state

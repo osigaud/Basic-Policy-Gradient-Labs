@@ -8,7 +8,7 @@ from critics import VNetwork, QNetworkContinuous
 from arguments import get_args
 from visu.visu_critics import plot_critic
 from visu.visu_policies import plot_policy
-from exploit_results import main_exploit
+from visu.visu_results import main_exploit
 
 
 def create_data_folders():
@@ -32,6 +32,7 @@ def set_files(study_name, env_name):
 
 
 def study_pg(params):
+    assert params.policy_type in ['bernoulli', 'normal', 'squashedGaussian'], 'unsupported policy type'
     chrono = Chrono()
     study = params.gradients  # ["sum", "discount", "normalize", "baseline"]  #
     simu = make_simu_from_params(params)
@@ -47,8 +48,6 @@ def study_pg(params):
                 policy = NormalPolicy(simu.obs_size, 24, 36, 1, params.lr_actor)
             elif params.policy_type == "squashedGaussian":
                 policy = SquashedGaussianPolicy(simu.obs_size, 24, 36, 1, params.lr_actor)
-            else:
-                print("main PG: unknown policy type: ", params.policy_type)
             pw = PolicyWrapper(policy, params.team_name, simu.name)
             plot_policy(policy, simu.env, True, simu.name, study[i], '_ante_', j, plot=False)
 

@@ -1,9 +1,41 @@
 # Basic-Policy-Gradient-Labs
-A repo to design basic Policy Gradient labs
 
-## Continuous Cartpole Environment
-### Installation
+A repo to study basic Policy Gradient algorithms (like REINFORCE) on classic control gym environments
+
+## python version
+
+Use python 3.
+
+## Installation
+
+### Main installs:
+```
+pip3 install requirements.txt
+```
+
+### Install gym
+
+Actually, the main install above does it, but if you want to do everything manually...
 
 ```
-pip install -e my_gym
+pip3 install gym
 ```
+
+More information here:
+https://gym.openai.com/docs/#installation
+
+### Install Continuous Cartpole Environment
+
+```
+pip3 install -e my_gym
+```
+
+And that should be it!
+
+## Example of command
+
+```
+python3 main_pg --env_name Pendulum-v0 --nb_repet 1 --nb_cycles 500 --max_episode_steps 200 --policy_type squashedGaussian
+```
+
+The list of possible arguments is found in arguments.py, together with the default values

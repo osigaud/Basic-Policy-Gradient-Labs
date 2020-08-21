@@ -17,7 +17,7 @@ def make_det_vec(vals):
 
 class BernoulliPolicy(GenericNet):
     """
-    A policy outputing a boolean value for each state
+    A policy whose probabilistic output is a boolean value for each state
     """
     def __init__(self, l1, l2, l3, l4, learning_rate):
         super(BernoulliPolicy, self).__init__()
@@ -31,6 +31,12 @@ class BernoulliPolicy(GenericNet):
         self.optimizer = torch.optim.RMSprop(self.parameters(), lr=learning_rate)
 
     def forward(self, state):
+        """
+         Compute the pytorch tensors resulting from sending a state or vector of states through the policy network
+         The obtained tensors can be used to obtain an action by calling select_action
+         :param state: the input state(s)
+         :return: the resulting pytorch tensor (here the probability of giving 0 or 1 as output)
+         """
         state = torch.from_numpy(state).float()
         state = self.relu(self.fc1(state))
         state = self.relu(self.fc2(state))
@@ -38,6 +44,12 @@ class BernoulliPolicy(GenericNet):
         return action
 
     def select_action(self, state, deterministic=False):
+        """
+        Compute an action or vector of actions given a state or vector of states
+        :param state: the input state(s)
+        :param deterministic: whether the policy should be considered deterministic or not
+        :return: the resulting action(s)
+        """
         with torch.no_grad():
             probs = self.forward(state)
             if deterministic:
@@ -47,6 +59,13 @@ class BernoulliPolicy(GenericNet):
             return action.data.numpy().astype(int)
 
     def train_pg(self, state, action, reward):
+        """
+        Train the policy using a policy gradient approach
+        :param state: the input state(s)
+        :param action: the input action(s)
+        :param reward: the resulting reward
+        :return: the loss applied to train the policy
+        """
         action = torch.FloatTensor(action)
         reward = torch.FloatTensor(reward)
         probs = self.forward(state)
@@ -56,6 +75,12 @@ class BernoulliPolicy(GenericNet):
         return loss
 
     def train_regress(self, state, action):
+        """
+          Train the policy to perform the same action(s) in the same state(s) using regression
+          :param state: the input state(s)
+          :param action: the input action(s)
+          :return: the loss applied to train the policy
+          """
         action = torch.FloatTensor(action)
         proposed_action = self.forward(state)
         loss = func.mse_loss(proposed_action, action)

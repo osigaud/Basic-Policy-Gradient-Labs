@@ -7,6 +7,9 @@ from policies.generic_net import GenericNet
 
 
 class NormalPolicy(GenericNet):
+    """
+     A policy whose probabilistic output is drawn from a Gaussian function
+     """
     def __init__(self, l1, l2, l3, l4, learning_rate):
         super(NormalPolicy, self).__init__()
         self.relu = nn.ReLU()
@@ -17,6 +20,12 @@ class NormalPolicy(GenericNet):
         self.optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
 
     def forward(self, state):
+        """
+         Compute the pytorch tensors resulting from sending a state or vector of states through the policy network
+         The obtained tensors can be used to obtain an action by calling select_action
+         :param state: the input state(s)
+         :return: the resulting pytorch tensor (here the max and standard deviation of a Gaussian probability of action)
+         """
         state = torch.from_numpy(state).float()
         state = self.relu(self.fc1(state))
         state = self.relu(self.fc2(state))
@@ -25,6 +34,12 @@ class NormalPolicy(GenericNet):
         return mu, std
 
     def select_action(self, state, deterministic=False):
+        """
+        Compute an action or vector of actions given a state or vector of states
+        :param state: the input state(s)
+        :param deterministic: whether the policy should be considered deterministic or not
+        :return: the resulting action(s)
+        """
         with torch.no_grad():
             mu, std = self.forward(state)
             if deterministic:
@@ -35,6 +50,13 @@ class NormalPolicy(GenericNet):
             return action.data.numpy().astype(float)
 
     def train_pg(self, state, action, reward):
+        """
+        Train the policy using a policy gradient approach
+        :param state: the input state(s)
+        :param action: the input action(s)
+        :param reward: the resulting reward
+        :return: the loss applied to train the policy
+        """
         action = torch.FloatTensor(action)
         reward = torch.FloatTensor(reward) 
         mu, std = self.forward(state)
@@ -44,13 +66,24 @@ class NormalPolicy(GenericNet):
         return loss
 
     def train_regress(self, state, action):
+        """
+         Train the policy to perform the same action(s) in the same state(s) using regression
+         :param state: the input state(s)
+         :param action: the input action(s)
+         :return: the loss applied to train the policy
+         """
         action = torch.FloatTensor(action)
         mu, _ = self.forward(state)
         loss = func.mse_loss(mu, action)
         self.update(loss)
         return loss
 
-    def train_regress_from_batch(self, batch):
+    def train_regress_from_batch(self, batch) -> None:
+        """
+        Train the policy using a policy gradient approach from a full batch of episodes
+        :param batch: the batch used for training
+        :return: nothing
+        """
         for j in range(batch.size):
             episode = batch.episodes[j]
             state = np.array(episode.state_pool)

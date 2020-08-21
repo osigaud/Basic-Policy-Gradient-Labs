@@ -13,12 +13,22 @@ class PolicyWrapper:
         self.team_name = name
         self.env_name = env_name
 
-    def save(self, score=0):
+    def save(self, score=0) -> None:
+        """
+        Save the model into a file whose name contains useful information for later evaluation
+        :param score: the score of the network
+        :return: nothing
+        """
         directory = os.getcwd() + '/data/policies/'
         filename = directory + self.env_name + '#' + self.team_name + '_' + str(score) + '#' + str(score) + '.pt'
         self.policy.save_model(filename)
 
     def load(self, filename):
+        """
+        Load a model from a file whose name contains useful information for evaluation (environment name and team name)
+        :param filename: the file name, including the path
+        :return: the obtained network
+        """
         fields = filename.split('#')
         tmp = fields[0]
         envname = tmp.split('/')

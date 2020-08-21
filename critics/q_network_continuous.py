@@ -16,9 +16,16 @@ class QNetworkContinuous(CriticNetwork):
     def forward(self, state, action):
         """
          Computes the value from a state action pair, going through the network
+         :param action: the chosen action
          :param state: the given state(s)
          :return: the corresponding values, as a torch tensor
          """
+        # added by Thomas
+        action = np.reshape(action, (-1, 1))
+        if state.ndim == 1:
+            # Add batch dim of 1 before pass in neural network
+            state = np.reshape(state, (1, -1))
+        # end of added by Thomas
         x = np.hstack((state, action))
         state = torch.from_numpy(x).float()
         value = self.relu(self.fc1(state))

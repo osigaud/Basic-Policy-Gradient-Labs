@@ -1,11 +1,8 @@
-from chrono import Chrono
 from simu import make_simu_from_params
 from policies import BernoulliPolicy, NormalPolicy, PolicyWrapper
 from critics import VNetwork, QNetworkContinuous
 from arguments import get_args
-from visu.visu_critics import plot_critic
-from visu.visu_policies import plot_policy
-from exploit_results import main_exploit
+from visu.visu_results import main_exploit
 from main_pg import create_data_folders, set_files
 
 
