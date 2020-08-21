@@ -19,9 +19,12 @@ class Algo:
         :param batch: the batch on which we train
         :return: nothing
         """
+        assert self.study_name in ['beta', 'regress', 'sum', 'discount', 'normalize', 'baseline', 'nstep'], 'unsupported study name'
         if self.study_name == "beta":
             batch.exponentiate_rewards(self.beta)
         elif self.study_name == "regress":
+            batch.sum_rewards()
+        elif self.study_name == "sum":
             batch.sum_rewards()
         elif self.study_name == "discount":
             batch.discounted_sum_rewards(self.gamma)
@@ -30,12 +33,9 @@ class Algo:
         elif self.study_name == "baseline":
             batch.discounted_sum_rewards(self.gamma)
             batch.substract_baseline(self.critic)
-        elif self.study_name == "sum":
-            batch.sum_rewards()
         elif self.study_name[:5] == "nstep":
             batch.nstep_return(self.n, self.gamma, self.critic)
-        else:
-            print("Algo.prepare_batch: study not found = ", self.study_name)
+
 
     def train_critic_from_dataset(self, batch, params):
         """
@@ -44,6 +44,7 @@ class Algo:
         :param params: the hyper-parameters of the run, specified in arguments.py or in the command line
         :return: the critic training loss
         """
+        assert self.critic_estim_method in ['td', 'mc', 'nstep'], 'unsupported critic estimation method'
         if self.critic_estim_method == "td":
             dataset = batch.prepare_dataset_td(params, self.policy, self.critic)
             return self.critic.update_td(params, dataset, True)
@@ -53,9 +54,7 @@ class Algo:
         elif self.critic_estim_method == "nstep":
             dataset = batch.prepare_dataset_td(self.gamma, self.policy, self.critic, "nstep")
             return self.critic.compute_valid_td(params, dataset)
-        else:
-            print("Algo train_policy_dataset : unknown critic estim method : ", self.critic_estim_method)
-        return 0
+
 
     def train_critic_from_batch(self, batch):
         """

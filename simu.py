@@ -142,12 +142,11 @@ class Simu:
             policy_loss = batch.train_policy_td(policy)
 
             # Update the critic
+            assert params.critic_update_method in ['batch', 'datatset'], 'unsupported critic update method'
             if params.critic_update_method == "dataset":
                 critic_loss = algo.train_critic_from_dataset(batch2, params)
             elif params.critic_update_method == "batch":
                 critic_loss = algo.train_critic_from_batch(batch2)
-            else:
-                print("simu train: unknown update method = ", params.critic_update_method)
             critic_loss_file.write(str(cycle) + " " + str(critic_loss) + "\n")
             policy_loss_file.write(str(cycle) + " " + str(policy_loss) + "\n")
 
