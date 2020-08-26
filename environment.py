@@ -1,7 +1,7 @@
 import gym
 import my_gym  # Necessary to see CartPoleContinuous, though PyCharm does not understand this
 import numpy as np
-from wrappers import FeatureInverter, BinaryShifter, BinaryShifterDiscrete, ActionVectorAdapter, PerfWriter
+from wrappers import FeatureInverter, BinaryShifter, BinaryShifterDiscrete, ActionVectorAdapter, PerfWriter, PendulumWrapper
 from gym.wrappers import TimeLimit
 
 # to see the list of available gym environments, type:
@@ -33,6 +33,9 @@ def make_env(env_name, policy_type, max_episode_steps, env_obs_space_name=None):
             env = BinaryShifter(env)
         # else:
         #    env = BinaryShifterDiscrete(env)
+
+    if env_name == "Pendulum-v0":
+        env = PendulumWrapper(env)
 
     env = PerfWriter(env)
     return env

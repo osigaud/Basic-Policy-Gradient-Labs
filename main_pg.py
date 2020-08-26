@@ -49,7 +49,7 @@ def study_pg(params) -> None:
     """
     assert params.policy_type in ['bernoulli', 'normal', 'squashedGaussian'], 'unsupported policy type'
     chrono = Chrono()
-    study = params.gradients  # ["sum", "discount", "normalize", "baseline"]  #
+    study = params.gradients
     simu = make_simu_from_params(params)
     for i in range(len(study)):
         simu.env.set_file_name(study[i] + '_' + simu.name)
@@ -89,6 +89,6 @@ if __name__ == '__main__':
     args = get_args()
     print(args)
     create_data_folders()
-    args.gradients = ['discount']
+    args.gradients = ['sum']
     study_pg(args)
     plot_results(args)

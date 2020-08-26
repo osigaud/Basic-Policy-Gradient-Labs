@@ -122,16 +122,23 @@ class Batch:
         :param policy: the trained policy
         :return: the average loss over the batch
         """
+        do_print = False
         losses = []
+        if do_print: print("training data :")
         for j in range(self.size):
             episode = self.episodes[j]
             state = np.array(episode.state_pool)
             action = np.array(episode.action_pool)
             reward = np.array(episode.reward_pool)
-            critic_loss = policy.train_pg(state, action, reward)
-            critic_loss = critic_loss.data.numpy()
-            mean_loss = critic_loss.mean()
+            if do_print: print("state", state)
+            if do_print: print("action", action)
+            if do_print: print("reward", reward)
+            policy_loss = policy.train_pg(state, action, reward)
+            if do_print: print("loss", policy_loss)
+            policy_loss = policy_loss.data.numpy()
+            mean_loss = policy_loss.mean()
             losses.append(mean_loss)
+        if do_print: print("end of training data :")
         return np.array(losses).mean()
 
     def train_policy_through_regress(self, policy):

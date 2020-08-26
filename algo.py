@@ -19,11 +19,9 @@ class Algo:
         :param batch: the batch on which we train
         :return: nothing
         """
-        assert self.study_name in ['beta', 'regress', 'sum', 'discount', 'normalize', 'baseline', 'nstep'], 'unsupported study name'
+        assert self.study_name in ['beta', 'sum', 'discount', 'normalize', 'baseline', 'nstep'], 'unsupported study name'
         if self.study_name == "beta":
             batch.exponentiate_rewards(self.beta)
-        elif self.study_name == "regress":
-            batch.sum_rewards()
         elif self.study_name == "sum":
             batch.sum_rewards()
         elif self.study_name == "discount":

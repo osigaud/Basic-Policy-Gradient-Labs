@@ -4,3 +4,4 @@ from wrappers.action_vector_adapter import ActionVectorAdapter
 from wrappers.binary_shifter import BinaryShifter
 from wrappers.binary_shifter_discrete import BinaryShifterDiscrete
 from wrappers.perf_writer import PerfWriter
+from wrappers.pendulum_wrapper import PendulumWrapper

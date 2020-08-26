@@ -4,7 +4,8 @@ import argparse
 
 
 def make_study_string(params):
-    return params.env_name + '_' + params.study_name + '_' + params.critic_update_method + '_' + params.critic_estim_method
+    return params.env_name + '_' + params.study_name + '_' + params.critic_update_method \
+           + '_' + params.critic_estim_method+ '_eval_' + params.deterministic_eval
 
 
 def make_study_params_string(params):
@@ -37,6 +38,7 @@ def get_args():
     parser.add_argument('--critic_update_method', type=str, default="dataset", help='critic update method: batch or dataset')
     parser.add_argument('--policy_type', type=str, default="bernoulli", help='policy type: bernoulli, normal, squashedGaussian')
     parser.add_argument('--team_name', type=str, default='default_team', help='team name')
+    parser.add_argument('--deterministic_eval', type=bool, default=True, help='deterministic policy evaluation?')
     # study parameters
     parser.add_argument('--nb_repet', type=int, default=10, help='number of repetitions to get statistics')
     parser.add_argument('--nb_cycles', type=int, default=40, help='number of training cycles')

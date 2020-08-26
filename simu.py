@@ -70,7 +70,7 @@ class Simu:
         episode.add(state, action, reward, done, next_state)
         return next_state, reward, done
 
-    def evaluate_episode(self, policy, deterministic=False, render=False):
+    def evaluate_episode(self, policy, deterministic, render=False):
         """
          Perform an episode using the policy parameter and return the obtained reward
          Used to evaluate an already trained policy, without storing data for further training
@@ -137,7 +137,7 @@ class Simu:
             policy_loss = batch.train_policy_td(policy)
 
             # Update the critic
-            assert params.critic_update_method in ['batch', 'datatset'], 'unsupported critic update method'
+            assert params.critic_update_method in ['batch', 'dataset'], 'unsupported critic update method'
             if params.critic_update_method == "dataset":
                 critic_loss = algo.train_critic_from_dataset(batch2, params)
             elif params.critic_update_method == "batch":
@@ -146,7 +146,7 @@ class Simu:
             policy_loss_file.write(str(cycle) + " " + str(policy_loss) + "\n")
 
             # policy evaluation part
-            total_reward = self.evaluate_episode(policy)
+            total_reward = self.evaluate_episode(policy, params.deterministic_eval)
             # plot_trajectory(batch2, self.env, cycle+1)
 
             # save best reward agent (no need for averaging if the policy is deterministic)

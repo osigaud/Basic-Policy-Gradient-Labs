@@ -52,7 +52,7 @@ def exploit_duration_full(params) -> None:
 
     plt.xlabel("Episodes")
     plt.ylabel("Duration")
-    plt.legend(loc="lower right")  # , bbox_to_anchor=(1, 0.5)
+    plt.legend(loc="lower right")
     plt.title(params.env_name)
     plt.savefig(path + '/../results/durations_' + make_full_string(params) + 'pg.pdf')
     plt.show()
@@ -66,7 +66,7 @@ def exploit_critic_loss_full(params) -> None:
 
     plt.xlabel("Cycles")
     plt.ylabel("Loss")
-    plt.legend(loc="upper right")  # , bbox_to_anchor=(1, 0.5)
+    plt.legend(loc="upper right")
     plt.title(params.env_name)
     plt.savefig(path + '/../results/critic_loss_' + make_full_string(params) + 'pg.pdf')
     plt.show()
@@ -80,32 +80,9 @@ def exploit_policy_loss_full(params) -> None:
 
     plt.xlabel("Cycles")
     plt.ylabel("Loss")
-    plt.legend(loc="lower right")  # , bbox_to_anchor=(1, 0.5)
+    plt.legend(loc="lower right")
     plt.title(params.env_name)
     plt.savefig(path + '/../results/policy_loss_' + make_full_string(params) + 'pg.pdf')
-    plt.show()
-
-
-# generic
-def exploit_duration_regress(params) -> None:
-    path = os.getcwd() + "/data/save"
-    plot_data(path + "/duration_regress_" + params.env_name + '.txt', "durations")
-
-    plt.xlabel("Episodes")
-    plt.ylabel("Duration")
-    plt.legend(loc="lower right")  # , bbox_to_anchor=(1, 0.5)
-    plt.savefig(path + '/../results/durations_regress_' + make_full_string(params) + '.pdf')
-    plt.show()
-
-
-def exploit_reward_regress(params) -> None:
-    path = os.getcwd() + "/data/save"
-    plot_data(path + "/reward_regress_" + params.env_name + '.txt', "reward")
-    plt.xlabel("Episodes")
-    plt.ylabel("Reward")
-    plt.legend(loc="lower right")  # , bbox_to_anchor=(1, 0.5)
-    plt.title(params.env_name)
-    plt.savefig(path + '/../results/rewards_regress_' + make_full_string(params) + '.pdf')
     plt.show()
 
 
@@ -247,9 +224,6 @@ def plot_results(params) -> None:
         exploit_reward_full(params)
         exploit_policy_loss_full(params)
         exploit_critic_loss_full(params)
-    elif params.study_name == "regress":
-        exploit_duration_regress(params)
-        exploit_reward_regress(params)
     elif params.study_name == "loss":
         exploit_critic_loss_full(params)
         exploit_policy_loss_full(params)
