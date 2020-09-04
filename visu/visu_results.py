@@ -58,6 +58,20 @@ def exploit_duration_full(params) -> None:
     plt.show()
 
 
+def exploit_reward_full(params) -> None:
+    path = os.getcwd() + "/data/save"
+    study = params.gradients
+    for i in range(len(study)):
+        plot_data(path + "/reward_" + study[i] + '_' + params.env_name + '.txt', "reward " + study[i])
+
+    plt.title(params.env_name)
+    plt.xlabel("Episodes")
+    plt.ylabel("Reward")
+    plt.legend(loc="lower right")
+    plt.savefig(path + '/../results/rewards_' + make_full_string(params) + '.pdf')
+    plt.show()
+
+
 def exploit_critic_loss_full(params) -> None:
     path = os.getcwd() + "/data/save"
     study = params.gradients
@@ -117,17 +131,16 @@ def exploit_nstep(params) -> None:
 
 
 # to be refreshed
-def exploit_beta(params) -> None:
+def plot_beta_results(params) -> None:
     path = os.getcwd() + "/data/save"
     for beta in [0.1, 0.5, 1.0, 5.0, 10.0]:
-        name = "/progress_" + str(beta) + '.txt'
-        plot_data(path + name, str(beta))
+        plot_data(path + "/reward_" + str(beta) + '_' + params.env_name + '.txt', "reward " + str(beta))
 
-    plot_data(path + "/progress.txt", "normalized discounted rewards")
+    plt.title(params.env_name)
     plt.xlabel("Episodes")
-    plt.ylabel("Duration")
-    plt.legend(loc="lower right")  # , bbox_to_anchor=(1, 0.5)
-    plt.savefig(path + '/../results/' + make_full_string(params) + '.pdf')
+    plt.ylabel("Reward")
+    plt.legend(loc="lower right")
+    plt.savefig(path + '/../results/rewards_' + make_full_string(params) + '.pdf')
     plt.show()
 
 
@@ -196,20 +209,6 @@ def custom_plot(params) -> None:
         plt.legend(loc="lower right")
         plt.savefig(path + '/../results/' + c + '_' + make_full_string(params) + '.pdf')
         plt.show()
-
-
-def exploit_reward_full(params) -> None:
-    path = os.getcwd() + "/data/save"
-    study = params.gradients
-    for i in range(len(study)):
-        plot_data(path + "/reward_" + study[i] + '_' + params.env_name + '.txt', "reward " + study[i])
-
-    plt.title(params.env_name)
-    plt.xlabel("Episodes")
-    plt.ylabel("Reward")
-    plt.legend(loc="lower right")
-    plt.savefig(path + '/../results/rewards_' + make_full_string(params) + '.pdf')
-    plt.show()
 
 
 def plot_results(params) -> None:

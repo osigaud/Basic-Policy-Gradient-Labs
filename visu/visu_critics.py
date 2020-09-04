@@ -60,7 +60,7 @@ def plot_critic(simu, critic, policy, study, default_string, num):
     :param num: a number to plot several critics from the same configuration
     :return: nothing
     """
-    picturename = str(num) + '_critic_' + study + default_string + simu.name + '.pdf'
+    picturename = str(num) + '_critic_' + study + default_string + simu.env_name + '.pdf'
     env = simu.env
     obs_size = simu.obs_size
     if not simu.discrete:

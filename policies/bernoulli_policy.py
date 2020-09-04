@@ -71,6 +71,7 @@ class BernoulliPolicy(GenericNet):
         :param reward: the resulting reward
         :return: the loss applied to train the policy
         """
+        print("reward", reward)
         action = torch.FloatTensor(action)
         reward = torch.FloatTensor(reward)
         probs = self.forward(state)

@@ -52,8 +52,8 @@ def study_pg(params) -> None:
     study = params.gradients
     simu = make_simu_from_params(params)
     for i in range(len(study)):
-        simu.env.set_file_name(study[i] + '_' + simu.name)
-        policy_loss_file, critic_loss_file = set_files(study[i], simu.name)
+        simu.env.set_file_name(study[i] + '_' + simu.env_name)
+        policy_loss_file, critic_loss_file = set_files(study[i], simu.env_name)
         print("study : ", study[i])
         for j in range(params.nb_repet):
             simu.env.reinit()
@@ -63,8 +63,8 @@ def study_pg(params) -> None:
                 policy = NormalPolicy(simu.obs_size, 24, 36, 1, params.lr_actor)
             elif params.policy_type == "squashedGaussian":
                 policy = SquashedGaussianPolicy(simu.obs_size, 24, 36, 1, params.lr_actor)
-            pw = PolicyWrapper(policy, params.team_name, simu.name)
-            plot_policy(policy, simu.env, True, simu.name, study[i], '_ante_', j, plot=False)
+            pw = PolicyWrapper(policy, params.policy_type, simu.env_name, params.team_name, params.max_episode_steps)
+            plot_policy(policy, simu.env, True, simu.env_name, study[i], '_ante_', j, plot=False)
 
             if not simu.discrete:
                 act_size = simu.env.action_space.shape[0]
@@ -74,12 +74,12 @@ def study_pg(params) -> None:
             # plot_critic(simu, critic, policy, study[i], '_ante_', j)
 
             simu.train(pw, params, policy, critic, policy_loss_file, critic_loss_file, study[i])
-            plot_policy(policy, simu.env, True, simu.name, study[i], '_post_', j, plot=False)
+            plot_policy(policy, simu.env, True, simu.env_name, study[i], '_post_', j, plot=False)
             if False:
                 if params.policy_type == "normal":
-                    plot_normal_histograms(policy, j, simu.name)
+                    plot_normal_histograms(policy, j, simu.env_name)
                 else:
-                    plot_weight_histograms(policy, j, simu.name)
+                    plot_weight_histograms(policy, j, simu.env_name)
         plot_critic(simu, critic, policy, study[i], '_post_', j)
         critic.save_model('data/critics/' + params.env_name + '#' + params.team_name + '#' + study[i] + str(j) + '.pt')
     chrono.stop()
@@ -89,6 +89,6 @@ if __name__ == '__main__':
     args = get_args()
     print(args)
     create_data_folders()
-    args.gradients = ['sum']
+    # args.gradients = ['sum']
     study_pg(args)
     plot_results(args)

@@ -36,11 +36,11 @@ class Simu:
     """
     The class implements the interaction between the agent represented by its policy and the environment
     """
-    def __init__(self, env, name):
+    def __init__(self, env, env_name):
         self.cpt = 0
         self.best_reward = -1e38
         self.env = env
-        self.name = name
+        self.env_name = env_name
         self.obs_size = env.observation_space.shape[0]
         self.discrete = not env.action_space.contains(np.array([0.5]))
 
@@ -83,8 +83,9 @@ class Simu:
         self.env.set_duration_flag(True)
         state = self.reset(render)
         total_reward = 0
-        for _ in count():
+        for t in count():
             action = policy.select_action(state, deterministic)
+            # print("action", action)
             next_state, reward, done, _ = self.env.step(action)
             total_reward += reward
             state = next_state
@@ -93,17 +94,18 @@ class Simu:
                 # print("############ eval nb steps:", t)
                 return total_reward
 
-    def perform_one_episode(self, policy, render):
+    def train_on_one_episode(self, policy, deterministic, render):
         """
         Perform an episode using the policy parameter and return the corresponding samples into an episode structure
         :param policy: the policy controlling the agent
+        :param deterministic: whether the evaluation should use a deterministic policy or not
         :param render: whether the episode is displayed or not (True or False)
         :return: the samples stored into an episode
         """
         state = self.reset(render)
         episode = Episode()
-        for _ in count():
-            action = policy.select_action(state)
+        for t in count():
+            action = policy.select_action(state, deterministic)
             next_state, _, done = self.take_step(state, action, episode, render)
             state = next_state
 
@@ -167,6 +169,6 @@ class Simu:
         self.env.set_reward_flag(False)
         self.env.set_duration_flag(False)
         for e in range(nb_episodes):
-            episode = self.perform_one_episode(policy, render)
+            episode = self.train_on_one_episode(policy, False, render)
             batch.add_episode(episode)
         return batch

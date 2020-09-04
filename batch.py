@@ -178,8 +178,6 @@ class Batch:
             next_state = np.array(episode.next_state_pool)
             next_action = policy.select_action(next_state)
             target = critic.compute_bootstrap_target(reward, done, next_state, next_action, gamma)
-            # print("s:", state.shape, "a:", action.shape, "r:", reward.shape, "d:", done.shape, "n:", next_state.shape)
-            # print("r:",reward)
             target = torch.FloatTensor(target).unsqueeze(1)
             critic_loss = critic.compute_loss_to_target(state, action, target)
             if train:
@@ -211,9 +209,6 @@ class Batch:
             reward = np.array(episode.reward_pool)
             target = torch.FloatTensor(reward).unsqueeze(1)
             targets.append(target.mean().data.numpy())
-            # print("s:", state.shape, "a:", action.shape, "r:", reward.shape, "d:", done.shape, "n:", next_state.shape)
-            # print("r:",reward)
-            # print("t:", target)
             critic_loss = critic.compute_loss_to_target(state, action, target)
             if train:
                 critic.update(critic_loss)

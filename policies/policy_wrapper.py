@@ -8,10 +8,12 @@ class PolicyWrapper:
     which are necessary to display the result of evaluations. 
     These two informations are stored into the file name when saving the policy to be evaluated.
     """
-    def __init__(self, policy, name, env_name):
+    def __init__(self, policy, policy_type, env_name, team_name, max_steps):
         self.policy = policy
-        self.team_name = name
+        self.policy_type = policy_type
         self.env_name = env_name
+        self.team_name = team_name
+        self.max_steps = max_steps
 
     def save(self, score=0) -> None:
         """
@@ -20,7 +22,8 @@ class PolicyWrapper:
         :return: nothing
         """
         directory = os.getcwd() + '/data/policies/'
-        filename = directory + self.env_name + '#' + self.team_name + '_' + str(score) + '#' + str(score) + '.pt'
+        filename = directory + self.env_name + '#' + self.team_name + '_' + str(score) \
+                   + '#' + self.policy_type + '#' + str(self.max_steps)+ '#' + str(score) + '.pt'
         self.policy.save_model(filename)
 
     def load(self, filename):
@@ -34,5 +37,7 @@ class PolicyWrapper:
         env_name = tmp.split('/')
         self.env_name = env_name[-1]
         self.team_name = fields[1]
+        self.policy_type = fields[2]
+        self.max_steps = int(fields[3])
         net = self.policy.load_model(filename)
         return net

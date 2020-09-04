@@ -1,7 +1,8 @@
 import gym
 import my_gym  # Necessary to see CartPoleContinuous, though PyCharm does not understand this
 import numpy as np
-from wrappers import FeatureInverter, BinaryShifter, BinaryShifterDiscrete, ActionVectorAdapter, PerfWriter, PendulumWrapper
+from wrappers import FeatureInverter, BinaryShifter, ActionVectorAdapter, \
+    PerfWriter, PendulumWrapper, MountainCarContinuousWrapper
 from gym.wrappers import TimeLimit
 
 # to see the list of available gym environments, type:
@@ -36,6 +37,9 @@ def make_env(env_name, policy_type, max_episode_steps, env_obs_space_name=None):
 
     if env_name == "Pendulum-v0":
         env = PendulumWrapper(env)
+
+    if env_name == "MountainCarContinuous-v0":
+        env = MountainCarContinuousWrapper(env)
 
     env = PerfWriter(env)
     return env

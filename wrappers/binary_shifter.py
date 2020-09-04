@@ -3,8 +3,8 @@ import gym
 
 class BinaryShifter(gym.Wrapper):
     """
-    This wrapper is used to transform the {0,1} output of a binary policy into the {-1,1} action
-    space that most gym environment are expecting
+    This wrapper is used to transform the {0,1} output of a binary policy 
+    into the {-1,1} action space that most gym environment are expecting
     The input action given to state is assumed to be a vector of size 1, hence we get it from action[0],
     see the ActionAdapter wrapper
     """

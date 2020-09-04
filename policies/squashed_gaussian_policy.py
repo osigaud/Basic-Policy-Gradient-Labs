@@ -118,7 +118,7 @@ class SquashedGaussianPolicy(GenericNet):
             loss = func.mse_loss(mu, action)
         else:
             normal_distribution = Normal(mu, std)
-            loss = -self.log_prob(normal_distribution, action.view(-1, 1))
+            loss = -log_prob(normal_distribution, action.view(-1, 1))
         self.update(loss)
         return loss
 

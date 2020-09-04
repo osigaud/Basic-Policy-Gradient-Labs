@@ -10,4 +10,4 @@ class PendulumWrapper(gym.Wrapper):
 
     def step(self, action):
         next_state, reward, done, y = self.env.step(action)
-        return next_state, (8+reward)/10, done, y
+        return next_state, reward, done, y

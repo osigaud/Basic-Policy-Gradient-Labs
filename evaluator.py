@@ -6,11 +6,12 @@ from policies import GenericNet, PolicyWrapper
 from environment import make_env
 
 
-def evaluate_pol(env, policy):
+def evaluate_pol(env, policy, deterministic):
     """
     Function to evaluate a policy over 900 episodes
     :param env: the evaluation environment
     :param policy: the evaluated policy
+    :param deterministic: whether the evaluation uses a deterministic policy
     :return: the obtained vector of 900 scores
     """
     scores = []
@@ -21,7 +22,7 @@ def evaluate_pol(env, policy):
         total_reward = 0
 
         for _ in count():
-            action = policy.select_action(state)
+            action = policy.select_action(state, deterministic)
             next_state, reward, done, _ = env.step(action)
             total_reward += reward
             state = next_state
@@ -49,19 +50,20 @@ class Evaluator:
          """
         listdir = os.listdir(folder)
         for policy_file in listdir:
-            pw = PolicyWrapper(GenericNet(), "", "")
+            pw = PolicyWrapper(GenericNet(), "", "", "", 0)
             policy = pw.load(folder + policy_file)
-
             if pw.env_name in self.env_dict:
-                env = self.env_dict[pw.env_name]
-                scores = evaluate_pol(env, policy)
+                env = make_env(pw.env_name, pw.policy_type, pw.max_steps)
+                env.set_reward_flag(False)
+                env.set_duration_flag(False)
+                scores = evaluate_pol(env, policy, False)
                 self.score_dict[pw.env_name][scores.mean()] = [pw.team_name, scores.std()]
             else:
-                env, _ = make_env(pw.env_name, "bernoulli", ["x", "y"])
+                env = make_env(pw.env_name, pw.policy_type, pw.max_steps)
                 env.set_reward_flag(False)
                 env.set_duration_flag(False)
                 self.env_dict[pw.env_name] = env
-                scores = evaluate_pol(env, policy)
+                scores = evaluate_pol(env, policy, False)
                 tmp_score_dict = {scores.mean(): [pw.team_name, scores.std()]}
                 self.score_dict[pw.env_name] = tmp_score_dict
 
@@ -72,13 +74,13 @@ class Evaluator:
         """
         print("Hall of fame")
         for k, v in self.score_dict.items():
-            print("Environnement :", k)
+            print("Environment :", k)
             for k2, v2 in sorted(v.items()):
                 print("team: ", v2[0], "mean: ", k2, "std: ", v2[1])
 
 
 if __name__ == '__main__':
-    directory = os.getcwd() + './data/policies/'
+    directory = os.getcwd() + '/data/policies/'
     ev = Evaluator()
     ev.load_policies(directory)
     ev.display_hall_of_fame()

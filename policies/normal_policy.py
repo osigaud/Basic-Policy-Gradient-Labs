@@ -65,16 +65,21 @@ class NormalPolicy(GenericNet):
         self.update(loss)
         return loss
 
-    def train_regress(self, state, action):
+    def train_regress(self, state, action, estimation_method='log_likelihood'):
         """
          Train the policy to perform the same action(s) in the same state(s) using regression
          :param state: the input state(s)
          :param action: the input action(s)
          :return: the loss applied to train the policy
          """
+        assert estimation_method in ['mse', 'log_likelihood'], 'unsupported estimation method'
         action = torch.FloatTensor(action)
-        mu, _ = self.forward(state)
-        loss = func.mse_loss(mu, action)
+        mu, std = self.forward(state)
+        if estimation_method == 'mse':
+            loss = func.mse_loss(mu, action)
+        else:
+            normal_distribution = Normal(mu, std)
+            loss = -normal_distribution.log_prob(action)
         self.update(loss)
         return loss
 
