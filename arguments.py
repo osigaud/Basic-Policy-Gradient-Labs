@@ -5,7 +5,7 @@ import argparse
 
 def make_study_string(params):
     return params.env_name + '_' + params.study_name + '_' + params.critic_update_method \
-           + '_' + params.critic_estim_method+ '_eval_' + params.deterministic_eval
+           + '_' + params.critic_estim_method+ '_eval_' + str(params.deterministic_eval)
 
 
 def make_study_params_string(params):
