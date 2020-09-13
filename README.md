@@ -5,9 +5,11 @@ A repo to study basic Policy Gradient algorithms (like REINFORCE) on classic con
 ## Accompanying videos
 
 A policy gradient class where the algorithms are explained
+
 https://www.youtube.com/watch?v=_RQYWSvMyyc
 
 A video about phenomena studied with code from this repo
+
 https://www.youtube.com/watch?v=gLVodUwzHyU
 
 A further video about the code itself should come soon
@@ -32,6 +34,7 @@ pip3 install gym
 ```
 
 More information here:
+
 https://gym.openai.com/docs/#installation
 
 ### Install Continuous Cartpole Environment
