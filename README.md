@@ -2,6 +2,16 @@
 
 A repo to study basic Policy Gradient algorithms (like REINFORCE) on classic control gym environments
 
+## Accompanying videos
+
+A policy gradient class where the algorithms are explained
+https://www.youtube.com/watch?v=_RQYWSvMyyc
+
+A video about phenomena studied with code from this repo
+https://www.youtube.com/watch?v=gLVodUwzHyU
+
+A further video about the code itself should come soon
+
 ## python version
 
 Use python 3.

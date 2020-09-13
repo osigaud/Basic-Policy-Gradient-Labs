@@ -104,7 +104,7 @@ def exploit_nstep(params) -> None:
     path = os.getcwd() + "/data/save"
     steps = [1, 5, 10, 15, 20]
 
-    for j in ['loss', 'reward', 'duration']:
+    for j in ['policy_loss', 'critic_loss', 'reward', 'duration']:
         mean_list = []
         std_list = []
         for i in steps:

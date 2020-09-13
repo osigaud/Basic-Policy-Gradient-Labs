@@ -81,7 +81,7 @@ class Episode:
             horizon = i + n
             summ = self.reward_pool[i]
             if horizon < len(self.reward_pool):
-                bootstrap_val = critic.evaluate(self.state_pool[horizon], self.action_pool[horizon])[0]
+                bootstrap_val = critic.evaluate(self.state_pool[horizon], self.action_pool[horizon])[0][0]
                 summ += gamma ** n * bootstrap_val
             for j in range(1, n):
                 if i + j >= len(self.reward_pool):
