@@ -39,7 +39,7 @@ def plot_policy(policy, env, deterministic, name, study_name, default_string, nu
     :param name: '_ante_' or '_post_' to determine if the policy was plotted before or after training
     :param study_name: the name of the study
     :param default_string: a default string to further specify the plot name
-    :param num: un number to save several files corresponding to the same configuration
+    :param num: a number to save several files corresponding to the same configuration
     :param plot: whether the plot should be interactive
     :return: nothing
     """

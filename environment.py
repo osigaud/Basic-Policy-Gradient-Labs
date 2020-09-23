@@ -1,7 +1,7 @@
 import gym
 import my_gym  # Necessary to see CartPoleContinuous, though PyCharm does not understand this
 import numpy as np
-from wrappers import FeatureInverter, BinaryShifter, ActionVectorAdapter, \
+from wrappers import FeatureInverter, BinaryShifter, BinaryShifterDiscrete, ActionVectorAdapter, \
     PerfWriter, PendulumWrapper, MountainCarContinuousWrapper
 from gym.wrappers import TimeLimit
 
@@ -21,6 +21,10 @@ def make_env(env_name, policy_type, max_episode_steps, env_obs_space_name=None):
     :return: the wrapped environment
     """
     env = gym.make(env_name)
+    # tests whether the environment is discrete or continuous
+    if not env.action_space.contains(np.array([0.5])):
+        assert policy_type == "bernoulli", 'cannot run a continuous action policy in a discrete action environment'
+
     if max_episode_steps is not None:
         env = TimeLimit(env, max_episode_steps)
     if env_name == "CartPole-v0" or env_name == "CartPoleContinuous-v0":
@@ -30,10 +34,11 @@ def make_env(env_name, policy_type, max_episode_steps, env_obs_space_name=None):
     env.observation_space.names = env_obs_space_name
 
     if policy_type == "bernoulli":
+        # tests whether the environment is discrete or continuous
         if env.action_space.contains(np.array([0.5])):
             env = BinaryShifter(env)
-        # else:
-        #    env = BinaryShifterDiscrete(env)
+        else:
+            env = BinaryShifterDiscrete(env)
 
     if env_name == "Pendulum-v0":
         env = PendulumWrapper(env)
@@ -42,4 +47,5 @@ def make_env(env_name, policy_type, max_episode_steps, env_obs_space_name=None):
         env = MountainCarContinuousWrapper(env)
 
     env = PerfWriter(env)
+    print(env)
     return env
