@@ -5,11 +5,6 @@ from wrappers import FeatureInverter, BinaryShifter, BinaryShifterDiscrete, Acti
     PerfWriter, PendulumWrapper, MountainCarContinuousWrapper
 from gym.wrappers import TimeLimit
 
-# to see the list of available gym environments, type:
-# from gym import envs
-# print(envs.registry.all())
-
-
 def make_env(env_name, policy_type, max_episode_steps, env_obs_space_name=None):
     """
     Wrap the environment into a set of wrappers depending on some hyper-parameters
@@ -49,3 +44,8 @@ def make_env(env_name, policy_type, max_episode_steps, env_obs_space_name=None):
     env = PerfWriter(env)
     print(env)
     return env
+
+# to see the list of available gym environments, type:
+# from gym import envs
+# print(envs.registry.all())
+
