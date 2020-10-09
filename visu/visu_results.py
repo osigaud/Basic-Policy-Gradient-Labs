@@ -189,49 +189,20 @@ def exploit_nstep_diff(params) -> None:
     plt.savefig(path + '/../results/bias_variance_' + make_full_string(params) + '.pdf')
     plt.show()
 
-
-def custom_plot(params) -> None:
-    path = os.getcwd() + "/data/save"
-    study = ['batchTD', 'batchMC', 'nstep']
-    valid = ['', '_valid']
-    content = ['loss', 'targ']
-
-    for c in content:
-        for s in study:
-            for v in valid:
-
-                plot_data(path + '/' + c + s + v + '_' + params.env_name + '.txt', c + '_' + s + v)
-
-        plt.title(params.env_name)
-        plt.ylabel(c)
-        plt.xlabel("Episodes")
-
-        plt.legend(loc="lower right")
-        plt.savefig(path + '/../results/' + c + '_' + make_full_string(params) + '.pdf')
-        plt.show()
-
-
 def plot_results(params) -> None:
     """
     Plot the results from a study previously saved in files in "./data/save"
     :param params: parameters of the study
     :return: nothing
     """
-    assert params.study_name in ['pg', 'regress', 'loss', 'nstep', 'diff', 'target'], 'unsupported study name'
+    assert params.study_name in ['pg', 'regress', 'nstep'], 'unsupported study name'
     if params.study_name == "pg":
         exploit_duration_full(params)
         exploit_reward_full(params)
         exploit_policy_loss_full(params)
         exploit_critic_loss_full(params)
-    elif params.study_name == "loss":
-        exploit_critic_loss_full(params)
-        exploit_policy_loss_full(params)
     elif params.study_name == "nstep":
         exploit_nstep(params)
-    elif params.study_name == "diff":
-        exploit_nstep_diff(params)
-    elif params.study_name == "target":
-        custom_plot(params)
 
 
 if __name__ == '__main__':
