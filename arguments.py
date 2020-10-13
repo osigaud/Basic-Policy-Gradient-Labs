@@ -45,7 +45,7 @@ def get_args():
     parser.add_argument('--nb_trajs', type=int, default=20, help='number of trajectories in a MC batch')
     parser.add_argument('--nb_batches', type=int, default=20, help='number of updates of the network using datasets')
     # algo settings
-    parser.add_argument('--gradients', type=str, default=['sum', 'discount', 'normalize'], help='other: baseline, beta')
+    parser.add_argument('--gradients', type=str, nargs='+', default=['sum', 'discount', 'normalize'], help='other: baseline, beta')
     parser.add_argument('--critic_estim_method', type=str, default="td", help='critic estimation method: mc, td or nstep')
     # learning parameters
     parser.add_argument('--gamma', type=float, default=0.99, help='discount factor')
