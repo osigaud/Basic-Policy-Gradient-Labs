@@ -5,11 +5,13 @@ import os
 from chrono import Chrono
 from simu import make_simu_from_params
 from policies import BernoulliPolicy, NormalPolicy, SquashedGaussianPolicy, PolicyWrapper
+from policies.discrete_policy import DiscretePolicy
 from critics import VNetwork, QNetworkContinuous
 from arguments import get_args
 from visu.visu_critics import plot_critic
 from visu.visu_policies import plot_policy
 from visu.visu_results import plot_results
+import gym
 
 
 def create_data_folders() -> None:
@@ -48,7 +50,9 @@ def study_pg(params) -> None:
     :param params: the parameters of the study
     :return: nothing
     """
-    assert params.policy_type in ['bernoulli', 'normal', 'squashedGaussian'], 'unsupported policy type'
+    #### MODIF : added discrete
+    assert params.policy_type in ['bernoulli', 'normal', 'squashedGaussian', 'discrete'], 'unsupported policy type'
+    ####
     chrono = Chrono()
     # cuda = torch.device('cuda')
     study = params.gradients
@@ -61,6 +65,15 @@ def study_pg(params) -> None:
             simu.env.reinit()
             if params.policy_type == "bernoulli":
                 policy = BernoulliPolicy(simu.obs_size, 24, 36, 1, params.lr_actor)
+            #### MODIF : added the discrete policy
+            elif params.policy_type == "discrete":
+                if isinstance(simu.env.action_space , gym.spaces.box.Box):
+                    nb_actions = int(simu.env.action_space.high[0] - simu.env.action_space.low[0] +1)
+                    print("Error : environment action space is not discrete :"+str(simu.env.action_space))
+                else :
+                    nb_actions = simu.env.action_space.n
+                policy = DiscretePolicy(simu.obs_size, 24, 36, nb_actions, params.lr_actor)
+            ####
             elif params.policy_type == "normal":
                 policy = NormalPolicy(simu.obs_size, 24, 36, 1, params.lr_actor)
             elif params.policy_type == "squashedGaussian":

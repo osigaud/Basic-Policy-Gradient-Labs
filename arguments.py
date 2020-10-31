@@ -36,7 +36,7 @@ def get_args():
     # study settings
     parser.add_argument('--study_name', type=str, default='pg', help='study name: pg, regress, nstep')
     parser.add_argument('--critic_update_method', type=str, default="dataset", help='critic update method: batch or dataset')
-    parser.add_argument('--policy_type', type=str, default="bernoulli", help='policy type: bernoulli, normal, squashedGaussian')
+    parser.add_argument('--policy_type', type=str, default="bernoulli", help='policy type: bernoulli, normal, squashedGaussian, discrete')
     parser.add_argument('--team_name', type=str, default='default_team', help='team name')
     parser.add_argument('--deterministic_eval', type=bool, default=True, help='deterministic policy evaluation?')
     # study parameters

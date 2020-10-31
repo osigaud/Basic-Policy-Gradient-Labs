@@ -237,6 +237,12 @@ class Batch:
             episode = self.episodes[j]
             state = episode.state_pool
             action = episode.action_pool
+            #### MODIF:  transform actions in array, without it the dataset conversion in TensorDataset will crash on MountainCar and CartPole
+            action_cp = []
+            for i in range(len(action)) : 
+                action_cp.append([int(action[i])])
+            action = action_cp
+            ####
             target = episode.reward_pool
             list_targets = np.concatenate((list_targets, target))
             list_states = list_states + state
@@ -273,6 +279,12 @@ class Batch:
             episode = self.episodes[j]
             state = episode.state_pool
             action = episode.action_pool
+            #### MODIF:  transform actions in array, without it the dataset conversion in TensorDataset will crash on MountainCar and CartPole
+            action_cp = []
+            for i in range(len(action)) : 
+                action_cp.append([int(action[i])])
+            action = action_cp
+            ####
             reward = episode.reward_pool
             if params.critic_estim_method == "td":
                 done = np.array(episode.done_pool)
