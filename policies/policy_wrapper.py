@@ -38,6 +38,11 @@ class PolicyWrapper:
         self.env_name = env_name[-1]
         self.team_name = fields[1]
         self.policy_type = fields[2]
-        self.max_steps = int(fields[3])
+        #### MODIF : check if max steps is None
+        if fields[3] != "None":
+            self.max_steps = int(fields[3])
+        else:
+            self.max_steps = None
+        ####
         net = self.policy.load_model(filename)
         return net

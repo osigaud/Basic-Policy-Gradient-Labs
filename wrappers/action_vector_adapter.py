@@ -11,5 +11,10 @@ class ActionVectorAdapter(gym.Wrapper):
         super(ActionVectorAdapter, self).__init__(env)
 
     def step(self, action):
-        act = action[0]
+        #### MODIF : check if it is a list before picking the first element
+        if isinstance(action,list) :
+            act = action[0]
+        else:
+            act = action
+        ####
         return self.env.step(act)
