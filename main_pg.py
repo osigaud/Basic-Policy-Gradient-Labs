@@ -4,8 +4,7 @@ import os
 # import torch
 from chrono import Chrono
 from simu import make_simu_from_params
-from policies import BernoulliPolicy, NormalPolicy, SquashedGaussianPolicy, PolicyWrapper
-from policies.discrete_policy import DiscretePolicy
+from policies import BernoulliPolicy, NormalPolicy, SquashedGaussianPolicy, DiscretePolicy, PolicyWrapper
 from critics import VNetwork, QNetworkContinuous
 from arguments import get_args
 from visu.visu_critics import plot_critic

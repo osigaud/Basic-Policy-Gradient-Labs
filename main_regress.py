@@ -1,6 +1,6 @@
 from chrono import Chrono
 from simu import make_simu_from_params
-from policies import BernoulliPolicy, NormalPolicy, SquashedGaussianPolicy, PolicyWrapper
+from policies import BernoulliPolicy, NormalPolicy, SquashedGaussianPolicy, DiscretePolicy, PolicyWrapper
 from critics import VNetwork, QNetworkContinuous
 from arguments import get_args
 from visu.visu_policies import plot_policy
@@ -8,10 +8,10 @@ from visu.visu_critics import plot_critic
 from visu.visu_results import plot_results
 from main_pg import create_data_folders, set_files
 from mountain_car_expert import regress
-
+import gym
 
 def study_regress(params) -> None:
-    assert params.policy_type in ['bernoulli', 'normal', 'squashedGaussian'], 'unsupported policy type'
+    assert params.policy_type in ['bernoulli', 'normal', 'squashedGaussian', 'discrete'], 'unsupported policy type'
     chrono = Chrono()
     study = params.gradients
     simu = make_simu_from_params(params)
@@ -27,6 +27,13 @@ def study_regress(params) -> None:
                 policy = NormalPolicy(simu.obs_size, 24, 36, 1, params.lr_actor)
             elif params.policy_type == "squashedGaussian":
                 policy = SquashedGaussianPolicy(simu.obs_size, 24, 36, 1, params.lr_actor)
+            elif params.policy_type == "discrete":
+                if isinstance(simu.env.action_space , gym.spaces.box.Box):
+                    nb_actions = int(simu.env.action_space.high[0] - simu.env.action_space.low[0] +1)
+                    print("Error : environment action space is not discrete :"+str(simu.env.action_space))
+                else :
+                    nb_actions = simu.env.action_space.n
+                policy = DiscretePolicy(simu.obs_size, 24, 36, nb_actions, params.lr_actor)
             pw = PolicyWrapper(policy, params.policy_type, simu.env_name, params.team_name, params.max_episode_steps)
             plot_policy(policy, simu.env, True, simu.env_name, study[i], '_ante_', j, plot=False)
 

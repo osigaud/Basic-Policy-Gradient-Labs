@@ -22,11 +22,11 @@ def perform_expert_episodes_bangbang(simu, batch, nb_trajs, render=False):
 
         episode = Episode()
         for _ in range(50):
-            action = [0.0]
+            action = [0]
             state, reward, done = simu.take_step(state, action, episode, render)
 
         for t in count():
-            action = [1.0]
+            action = [1]
             state, reward, done = simu.take_step(state, action, episode, render)
 
             if done:
@@ -69,7 +69,7 @@ def regress(simu, policy, policy_type, nb_trajs, render=False) -> None:
     batch = Batch()
     simu.env.set_reward_flag(False)
     simu.env.set_duration_flag(False)
-    if policy_type == "bernoulli":
+    if policy_type == "bernoulli" or policy_type == "discrete":
         batch = perform_expert_episodes_bangbang(simu, batch, nb_trajs, render)
     else:
         batch = perform_expert_episodes_continuous(simu, batch, nb_trajs, render)
