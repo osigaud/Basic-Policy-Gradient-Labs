@@ -1,6 +1,7 @@
 # started from Finspire13 /pytorch-policy-gradient-example
 
 import os
+# import torch
 from chrono import Chrono
 from simu import make_simu_from_params
 from policies import BernoulliPolicy, NormalPolicy, SquashedGaussianPolicy, PolicyWrapper
@@ -49,6 +50,7 @@ def study_pg(params) -> None:
     """
     assert params.policy_type in ['bernoulli', 'normal', 'squashedGaussian'], 'unsupported policy type'
     chrono = Chrono()
+    # cuda = torch.device('cuda')
     study = params.gradients
     simu = make_simu_from_params(params)
     for i in range(len(study)):
@@ -63,6 +65,7 @@ def study_pg(params) -> None:
                 policy = NormalPolicy(simu.obs_size, 24, 36, 1, params.lr_actor)
             elif params.policy_type == "squashedGaussian":
                 policy = SquashedGaussianPolicy(simu.obs_size, 24, 36, 1, params.lr_actor)
+            # policy = policy.cuda()
             pw = PolicyWrapper(policy, params.policy_type, simu.env_name, params.team_name, params.max_episode_steps)
             plot_policy(policy, simu.env, True, simu.env_name, study[i], '_ante_', j, plot=False)
 

@@ -50,6 +50,7 @@ class Evaluator:
          """
         listdir = os.listdir(folder)
         for policy_file in listdir:
+            print(policy_file)
             pw = PolicyWrapper(GenericNet(), "", "", "", 0)
             policy = pw.load(folder + policy_file)
             if pw.env_name in self.env_dict:

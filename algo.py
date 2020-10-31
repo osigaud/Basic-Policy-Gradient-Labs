@@ -48,7 +48,7 @@ class Algo:
             return self.critic.update_td(params, dataset, True)
         elif self.critic_estim_method == "mc":
             dataset = batch.prepare_dataset_mc(self.gamma)
-            return self.critic.update_mc(params, dataset, save_best=False)
+            return self.critic.update_mc(params, dataset, True, save_best=False)
         elif self.critic_estim_method == "nstep":
             dataset = batch.prepare_dataset_td(self.gamma, self.policy, self.critic, "nstep")
             return self.critic.compute_valid_td(params, dataset)

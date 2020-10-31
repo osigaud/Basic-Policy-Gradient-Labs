@@ -30,7 +30,7 @@ class NormalPolicy(GenericNet):
         state = self.relu(self.fc1(state))
         state = self.relu(self.fc2(state))
         mu = self.fc_mu(state)
-        std = 0.9  # 20*self.softplus(self.fc_std(state))
+        std = 1.5  # 20*self.softplus(self.fc_std(state))
         return mu, std
 
     def select_action(self, state, deterministic=False):
