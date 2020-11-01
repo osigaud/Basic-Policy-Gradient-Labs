@@ -18,7 +18,7 @@ class GenericNet(nn.Module):
         :param filename: the filename, including the path
         :return: nothing
         """
-        torch.save(dict(model=self, model_state=self.state_dict(), optimizer=self.optimizer.state_dict()), filename)
+        torch.save(self, filename)
 
     def load_model(self, filename):
         """
@@ -26,10 +26,7 @@ class GenericNet(nn.Module):
         :param filename: the filename, including the path
         :return: the resulting pytorch network
         """
-        checkpoint = torch.load(filename)
-        net = checkpoint["model"]
-        net.load_state_dict(checkpoint['model_state'])
-        net.optimizer.load_state_dict(checkpoint['optimizer'])
+        net = torch.load(filename)
         net.eval()
         return net
 
