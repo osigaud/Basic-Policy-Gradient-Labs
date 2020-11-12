@@ -49,52 +49,49 @@ def study_pg(params) -> None:
     :param params: the parameters of the study
     :return: nothing
     """
-    #### MODIF : added discrete
     assert params.policy_type in ['bernoulli', 'normal', 'squashedGaussian', 'discrete'], 'unsupported policy type'
-    ####
+
     chrono = Chrono()
-    # cuda = torch.device('cuda')
     study = params.gradients
     simu = make_simu_from_params(params)
+
     for i in range(len(study)):
         simu.env.set_file_name(study[i] + '_' + simu.env_name)
         policy_loss_file, critic_loss_file = set_files(study[i], simu.env_name)
         print("study : ", study[i])
+
+        j = 0
+        policy = None
+        critic = None
         for j in range(params.nb_repet):
             simu.env.reinit()
+            # Initialize the policy/the actor
             if params.policy_type == "bernoulli":
                 policy = BernoulliPolicy(simu.obs_size, 24, 36, 1, params.lr_actor)
-            #### MODIF : added the discrete policy
             elif params.policy_type == "discrete":
-                if isinstance(simu.env.action_space , gym.spaces.box.Box):
-                    nb_actions = int(simu.env.action_space.high[0] - simu.env.action_space.low[0] +1)
-                    print("Error : environment action space is not discrete :"+str(simu.env.action_space))
-                else :
+                if isinstance(simu.env.action_space, gym.spaces.box.Box):
+                    nb_actions = int(simu.env.action_space.high[0] - simu.env.action_space.low[0] + 1)
+                    print("Error : environment action space is not discrete :" + str(simu.env.action_space))
+                else:
                     nb_actions = simu.env.action_space.n
                 policy = DiscretePolicy(simu.obs_size, 24, 36, nb_actions, params.lr_actor)
-            ####
             elif params.policy_type == "normal":
                 policy = NormalPolicy(simu.obs_size, 24, 36, 1, params.lr_actor)
             elif params.policy_type == "squashedGaussian":
                 policy = SquashedGaussianPolicy(simu.obs_size, 24, 36, 1, params.lr_actor)
-            # policy = policy.cuda()
+
             pw = PolicyWrapper(policy, params.policy_type, simu.env_name, params.team_name, params.max_episode_steps)
             plot_policy(policy, simu.env, True, simu.env_name, study[i], '_ante_', j, plot=False)
-
+            # Initialize the critic
             if not simu.discrete:
                 act_size = simu.env.action_space.shape[0]
                 critic = QNetworkContinuous(simu.obs_size + act_size, 24, 36, 1, params.lr_critic)
             else:
                 critic = VNetwork(simu.obs_size, 24, 36, 1, params.lr_critic)
-            # plot_critic(simu, critic, policy, study[i], '_ante_', j)
-
+            # Train the actor and the critic
             simu.train(pw, params, policy, critic, policy_loss_file, critic_loss_file, study[i])
             plot_policy(policy, simu.env, True, simu.env_name, study[i], '_post_', j, plot=False)
-            if False:
-                if params.policy_type == "normal":
-                    plot_normal_histograms(policy, j, simu.env_name)
-                else:
-                    plot_weight_histograms(policy, j, simu.env_name)
+
         plot_critic(simu, critic, policy, study[i], '_post_', j)
         critic.save_model('data/critics/' + params.env_name + '#' + params.team_name + '#' + study[i] + str(j) + '.pt')
     chrono.stop()
@@ -104,6 +101,5 @@ if __name__ == '__main__':
     args = get_args()
     print(args)
     create_data_folders()
-    # args.gradients = ['sum']
     study_pg(args)
     plot_results(args)

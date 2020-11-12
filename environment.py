@@ -42,6 +42,7 @@ def make_env(env_name, policy_type, max_episode_steps, env_obs_space_name=None):
 
     if env_name == "Pendulum-v0":
         env = PendulumWrapper(env)
+        env = FeatureInverter(env, 1, 2)  # MODIFIED: Invert sin(theta) and theta dot
 
     if env_name == "MountainCarContinuous-v0":
         env = MountainCarContinuousWrapper(env)

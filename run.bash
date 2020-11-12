@@ -1,0 +1,21 @@
+python3 main_pg.py \
+  --env_name Pendulum-v0 \
+  --env_obs_space_name cos_th theta_dt \
+  --study_name pg \
+  --critic_update_method dataset \
+  --policy_type normal \
+  --team_name beroujon-cormee \
+  --deterministic_eval True \
+  --nb_repet 1 \
+  --nb_cycles 500 \
+  --nb_trajs 20 \
+  --gradients discount normalize \
+  --critic_estim_method td \
+  --gamma 0.99 \
+  --lr_actor 0.01 \
+  --lr_critic 0.01 \
+  --nstep 5 \
+  --batch_size 64 \
+  --nb_workers 8 \
+  --shuffle True \
+  --max_episode_steps 200

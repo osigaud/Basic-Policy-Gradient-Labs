@@ -130,6 +130,7 @@ class Simu:
         :return: nothing
         """
         for cycle in range(params.nb_cycles):
+            print("Cycle: {} out of {}".format(cycle, params.nb_cycles), end='\r')
             batch = self.make_monte_carlo_batch(params.nb_trajs, params.render, policy)
 
             # Update the policy
@@ -137,15 +138,16 @@ class Simu:
             algo = Algo(study_name, params.critic_estim_method, policy, critic, params.gamma, beta, params.nstep)
             algo.prepare_batch(batch)
             policy_loss = batch.train_policy_td(policy)
+            policy_loss_file.write(str(cycle) + " " + str(policy_loss) + "\n")
 
             # Update the critic
             assert params.critic_update_method in ['batch', 'dataset'], 'unsupported critic update method'
             if params.critic_update_method == "dataset":
                 critic_loss = algo.train_critic_from_dataset(batch2, params)
+                critic_loss_file.write(str(cycle) + " " + str(critic_loss) + "\n")
             elif params.critic_update_method == "batch":
                 critic_loss = algo.train_critic_from_batch(batch2)
-            critic_loss_file.write(str(cycle) + " " + str(critic_loss) + "\n")
-            policy_loss_file.write(str(cycle) + " " + str(policy_loss) + "\n")
+                critic_loss_file.write(str(cycle) + " " + str(critic_loss) + "\n")
 
             # policy evaluation part
             total_reward = self.evaluate_episode(policy, params.deterministic_eval)

@@ -31,7 +31,7 @@ def get_args():
     parser = argparse.ArgumentParser()
     # environment setting
     parser.add_argument('--env_name', type=str, default='CartPoleContinuous-v0', help='the environment name')
-    parser.add_argument('--env_obs_space_name', type=str, default=["pos", "angle"])  # ["pos", "angle", "vx", "v angle"]
+    parser.add_argument('--env_obs_space_name', nargs='+', type=str, default=["pos", "angle"])  # ["pos", "angle", "vx", "v angle"]
     parser.add_argument('--render', type=bool, default=False, help='visualize the run or not')
     # study settings
     parser.add_argument('--study_name', type=str, default='pg', help='study name: pg, regress, nstep')
