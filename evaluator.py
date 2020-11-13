@@ -16,6 +16,7 @@ def evaluate_pol(env, policy, deterministic):
     """
     scores = []
     for i in range(900):
+        print("Iteration {} out of 900".format(i+1), end="\r")
         state = env.reset()
         # env.render(mode='rgb_array')
         # print("new episode")

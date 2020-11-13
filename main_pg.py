@@ -60,9 +60,7 @@ def study_pg(params) -> None:
         policy_loss_file, critic_loss_file = set_files(study[i], simu.env_name)
         print("study : ", study[i])
 
-        j = 0
         policy = None
-        critic = None
         for j in range(params.nb_repet):
             simu.env.reinit()
             # Initialize the policy/the actor
@@ -90,10 +88,11 @@ def study_pg(params) -> None:
                 critic = VNetwork(simu.obs_size, 24, 36, 1, params.lr_critic)
             # Train the actor and the critic
             simu.train(pw, params, policy, critic, policy_loss_file, critic_loss_file, study[i])
+            # Plot the actor and the critic and save the actor
             plot_policy(policy, simu.env, True, simu.env_name, study[i], '_post_', j, plot=False)
-
-        plot_critic(simu, critic, policy, study[i], '_post_', j)
-        critic.save_model('data/critics/' + params.env_name + '#' + params.team_name + '#' + study[i] + str(j) + '.pt')
+            plot_critic(simu, critic, policy, study[i], '_post_', j)
+            critic.save_model(
+                'data/critics/' + params.env_name + '#' + params.team_name + '#' + study[i] + str(j) + '.pt')
     chrono.stop()
 
 

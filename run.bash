@@ -7,8 +7,8 @@ python3 main_pg.py \
   --team_name beroujon-cormee \
   --deterministic_eval True \
   --nb_repet 1 \
-  --nb_cycles 500 \
-  --nb_trajs 20 \
+  --nb_cycles 800 \
+  --nb_trajs 200 \
   --gradients discount normalize \
   --critic_estim_method td \
   --gamma 0.99 \
@@ -18,4 +18,4 @@ python3 main_pg.py \
   --batch_size 64 \
   --nb_workers 8 \
   --shuffle True \
-  --max_episode_steps 200
+  --max_episode_steps 500
