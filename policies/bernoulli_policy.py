@@ -88,6 +88,6 @@ class BernoulliPolicy(GenericNet):
           """
         action = torch.FloatTensor(action)
         proposed_action = self.forward(state)
-        loss = func.mse_loss(proposed_action, action)
+        loss = func.binary_cross_entropy(proposed_action, action)
         self.update(loss)
         return loss
