@@ -146,21 +146,21 @@ def main():
 
         # equivalent d'une traj aka 1 épisode
         while not done:
-            a, log_prob= pi(torch.from_numpy(s).float())
+            a, log_prob= pi(torch.from_numpy(s).float())    # action selection
             s_prime, r, done, info = env.step([2.0*a.item()])
-            memory.put((s, a.item(), r/10.0, s_prime, done))
+            memory.put((s, a.item(), r/10.0, s_prime, done))    # add of the global state in the replay buffer
             score +=r
             s = s_prime
                 
         if memory.size()>1000:
             for i in range(20):
-                mini_batch = memory.sample(batch_size)
-                td_target = calc_target(pi, q1_target, q2_target, mini_batch)
-                q1.train_net(td_target, mini_batch)
-                q2.train_net(td_target, mini_batch)
-                entropy = pi.train_net(q1, q2, mini_batch)
-                q1.soft_update(q1_target)
-                q2.soft_update(q2_target)
+                mini_batch = memory.sample(batch_size)  # construction d'une fraction de traj
+                td_target = calc_target(pi, q1_target, q2_target, mini_batch)   # calcule la cible pour la fonction Q
+                q1.train_net(td_target, mini_batch) # entraine la 1ere critique
+                q2.train_net(td_target, mini_batch) # entraine la 2e critique
+                entropy = pi.train_net(q1, q2, mini_batch)  # entraine la politque (= acteur)
+                q1.soft_update(q1_target)   # update of the 1st target
+                q2.soft_update(q2_target)   # update of the 2nd target
                 
         if n_epi%print_interval==0 and n_epi!=0:
             print("# of episode :{}, avg score : {:.1f} alpha:{:.4f}".format(n_epi, score/print_interval, pi.log_alpha.exp()))

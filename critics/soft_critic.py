@@ -3,11 +3,13 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import torch.utils.data as data
 
-from policies.generic_net import GenericNet
+#from policies.generic_net import GenericNet
+from critics.critic_network import CriticNetwork
 
 
-class SoftCritic(GenericNet):
+class SoftCritic(CriticNetwork):
     def __init__(self, politic, l1, l2=16, l3=16, l4=1, learning_rate=0.001):
         """ Initialize the q_network
         :param l1: number of neuron in the input layer
@@ -23,6 +25,7 @@ class SoftCritic(GenericNet):
         self.q2 = QNet(learning_rate)
         self.q2_target = QNet(learning_rate)
         self.optimizer = optim.Adam(self.parameters(), lr=learning_rate)
+        self.target = None
 
     def forward(self, state, action):
         """
@@ -34,12 +37,12 @@ class SoftCritic(GenericNet):
         action = np.reshape(action, (-1, 1))
         if state.ndim == 1:
             state = np.reshape(state, (1, -1))
-        x = np.hstack((state, action))
-        state_action = torch.from_numpy(x).float()
-        h1 = F.relu(self.fc_in(state_action))
-        h2 = F.relu(self.fc_h1(h1))
-        q = self.fc_out(h2)
-        return q
+
+        q1_val, q2_val = self.q1(state,action), self.q2(state,action)
+        q1_q2 = torch.cat([q1_val, q2_val], dim=1)
+        min_q = torch.min(q1_q2, 1, keepdim=True)[0]
+
+        return min_q
 
     def evaluate(self, state, action):
         """
@@ -63,15 +66,15 @@ class SoftCritic(GenericNet):
         :return: the target value
         """
         with torch.no_grad():
-            a_prime, log_prob = self.politic(next_state)
-            entropy = -self.politic.log_alpha.exp() * log_prob
+            a_prime, log_prob = self.politic(next_state)    # We take the next action according to the policy instead of the next_action argument
+            entropy = -self.politic.alpha * log_prob
             q1_val = self.q1_target(next_state, a_prime)
             q2_val = self.q2_target(next_state, a_prime)
             q1_q2 = torch.cat([q1_val, q2_val], dim=1)
             min_q = torch.min(q1_q2, 1, keepdim=True)[0]
-            target = reward + gamma * (1 - done) * (min_q + entropy)
+            self.target = reward + gamma * (1 - done) * (min_q + entropy)
 
-            return target
+            return self.target
 
     def compute_loss_to_target(self, state, action, target):
         """
@@ -89,16 +92,54 @@ class SoftCritic(GenericNet):
         :param loss: the applied loss
         :return: nothing
         """
-        self.q1.update(loss[:, 0])
-        self.q2.update(loss[:, 1])
-        mini_batch = memory.sample(batch_size)
-        td_target = calc_target(pi, q1_target, q2_target, mini_batch)
-        q1.train_net(td_target, mini_batch)
-        q2.train_net(td_target, mini_batch)
-        entropy = pi.train_net(q1, q2, mini_batch)
-        q1.soft_update(q1_target)
-        q2.soft_update(q2_target)
+        pass
 
+    def update_td(self, params, dataset, train):
+        """
+        Update the critic from a dataset using a temporal difference method
+        :param params: hyper-parameters of the experiments. Here, specifying the use of the dataset
+        :param dataset: the dataset from which to train the critic
+        :param train: whether we should train while computing the validation loss (should be False)
+        :return: the mean over the obtained loss
+        """
+        loss = super(SoftCritic, self).update_td(params, dataset, train)
+        if train:
+            loader = data.DataLoader(
+                dataset=dataset,
+                batch_size=params.batch_size, 
+                shuffle=params.shuffle, 
+                num_workers=params.nb_workers, )
+            for step, (batch_s, batch_a, batch_t) in enumerate(loader):  # for each training step
+                state = batch_s.data.numpy()
+                action = batch_a.data.numpy()
+                target = batch_t
+                
+                self.q1.train_net(target, state, action)
+                self.q2.train_net(target, state, action)
+                self.q1.soft_update(self.q1_target)
+                self.q2.soft_update(self.q2_target)
+        
+        return loss
+    
+    def train_from_loader(self, train_loader):
+        """
+        Train a critic from a python dataset structure
+        :param train_loader: the loader built from a dataset
+        :return: the obtained critic loss
+        """
+        critic_loss = []
+        for step, (batch_s, batch_a, batch_t) in enumerate(train_loader):  # for each training step
+            state = batch_s.data.numpy()
+            action = batch_a.data.numpy()
+            target = batch_t
+            critic_loss += self.compute_loss_to_target(state, action, target)
+
+            self.q1.train_net(target, state, action)
+            self.q2.train_net(target, state, action)
+            self.q1.soft_update(self.q1_target)
+            self.q2.soft_update(self.q2_target)
+
+        return np.array(critic_loss)
 
 class QNet(nn.Module):
     def __init__(self, learning_rate):
@@ -108,6 +149,7 @@ class QNet(nn.Module):
         self.fc_cat = nn.Linear(128, 32)
         self.fc_out = nn.Linear(32, 1)
         self.optimizer = optim.Adam(self.parameters(), lr=learning_rate)
+        self.tau = 0.01
 
     def forward(self, x, a):
         h1 = F.relu(self.fc_s(x))
@@ -118,23 +160,11 @@ class QNet(nn.Module):
         return q
 
     def soft_update(self, net_target):
-        for param_target, param in zip(
-                net_target.parameters(),
-                self.parameters()):
-            param_target.data.copy_(
-                param_target.data * (1.0 - tau) + param.data * tau)
+        for param_target, param in zip(net_target.parameters(), self.parameters()):
+            param_target.data.copy_( param_target.data * (1.0 - self.tau) + param.data * self.tau)
 
-    def compute_loss_to_target(self, state, action, target):
-        """
-        Compute the MSE between a target value and the critic value for the state action pair(s)
-        :param state: a state or vector of state
-        :param action: an action or vector of actions
-        :param target: the target value
-        :return: the resulting loss
-        """
-        return F.smooth_l1_loss(self.forward(state, action), target)
-
-    def update(self, loss):
+    def train_net(self, target, s, a):
+        loss = F.smooth_l1_loss(self.forward(s, a) , target)
         self.optimizer.zero_grad()
         loss.mean().backward()
         self.optimizer.step()

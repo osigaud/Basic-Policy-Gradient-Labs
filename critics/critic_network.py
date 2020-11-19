@@ -53,7 +53,7 @@ class CriticNetwork(GenericNet):
             target = batch_t
             critic_loss = self.compute_loss_to_target(state, action, target)
             self.update(critic_loss)
-            return critic_loss
+            return critic_loss  # sus, very strange, i don't understand
 
     def compute_validation_loss(self, validation_loader, train=False):
         """
