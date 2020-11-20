@@ -48,7 +48,7 @@ def plot_critics_from_directory(folder, policy) -> None:
         plot_critic_from_name(folder, critic_file, policy)
 
 
-def plot_critic(simu, critic, policy, study, default_string, num):
+def plot_critic(env, obs_size, critic, policy, study, default_string, num):
     """
     The main entry point for plotting a critic: determine which plotting function to call depending on the
     environment parameters
