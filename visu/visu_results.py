@@ -198,7 +198,7 @@ def plot_results(params) -> None:
     """
     assert params.study_name in ['pg', 'regress', 'nstep'], 'unsupported study name'
     if params.study_name == "pg":
-        exploit_duration_full(params)
+        # exploit_duration_full(params)
         exploit_reward_full(params)
         exploit_policy_loss_full(params)
         exploit_critic_loss_full(params)

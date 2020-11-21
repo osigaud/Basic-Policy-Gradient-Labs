@@ -1,23 +1,16 @@
-import numpy as np
-import gym
-import torch
 import os
 
-
-from chrono import Chrono
-from critics.q_net import QNet, calc_target
-from policies.policy_net import PolicyNet
-from memory import ReplayBuffer
 from arguments import get_args
+from chrono import Chrono
+from critics.q_net import QNet
+from environment import make_env
+from memory import ReplayBuffer
+from policies.policy_net import PolicyNet
+from simulation import Simulation
 from visu.visu_critics import plot_critic
 from visu.visu_policies import plot_policy
 from visu.visu_results import plot_results
 from wrappers.policy_wrapper import PolicyWrapper
-from environment import make_env
-
-lr_pi = 0.0005
-lr_q = 0.001
-batch_size = 32
 
 
 def create_data_folders() -> None:
@@ -44,102 +37,51 @@ def set_files(study_name, env_name):
     :param env_name: the name of the environment
     :return:
     """
-    policy_loss_name = "data/save/policy_loss_" + \
-        study_name + '_' + env_name + ".txt"
+    policy_loss_name = "data/save/policy_loss_" + study_name + '_' + env_name + ".txt"
     policy_loss_file = open(policy_loss_name, "w")
-    critic_loss_name = "data/save/critic_loss_" + \
-        study_name + '_' + env_name + ".txt"
+    critic_loss_name = "data/save/critic_loss_" + study_name + '_' + env_name + ".txt"
     critic_loss_file = open(critic_loss_name, "w")
     return policy_loss_file, critic_loss_file
 
 
 def main(params) -> None:
-    env_name = 'Pendulum-v0'
-    env = make_env(env_name,'sac',params.max_episode_steps,params.env_obs_space_name)     #gym.make(env_name)
-    
-    #obs_size = env.observation_space.shape[0]
+    lr_pi = 0.0005  # params.lr_policy
+    lr_q = 0.001  # params.lr_critics
+    env_name = 'Pendulum-v0'  # params.env_name
+
+    env = make_env(env_name, 'sac', params.max_episode_steps, params.env_obs_space_name)
     env.set_file_name('SAC' + '_' + env_name)
+
+    simulation = Simulation(env)
+
     policy_loss_file, critic_loss_file = set_files('SAC', env_name)
 
     chrono = Chrono()
 
     for j in range(params.nb_repet):
         env.reinit()
+        memory = ReplayBuffer()
 
         # Initialise the policy/actor
-        memory = ReplayBuffer()
-        policy = PolicyNet(lr_pi)
-
-        score = 0.0
-        print_interval = 20
-
-        pw = PolicyWrapper(policy, params.policy_type, env_name,
-                           params.team_name, params.max_episode_steps)
-        plot_policy(policy, env, True, env_name, 'SAC', '_ante_', j, plot=False)
-
+        policy = PolicyNet(lr_pi, init_alpha=0.02)
+        pw = PolicyWrapper(policy, params.policy_type, env_name, params.team_name, params.max_episode_steps)
         # Initialise the critics
-        q1, q2, q1_target, q2_target = QNet(
-            lr_q), QNet(lr_q), QNet(lr_q), QNet(lr_q)
+        q1 = QNet(lr_q)
+        q2 = QNet(lr_q)
+        q1_target = QNet(lr_q)
+        q2_target = QNet(lr_q)
         q1_target.load_state_dict(q1.state_dict())
         q2_target.load_state_dict(q2.state_dict())
 
-        best_rew = -1e38
+        plot_policy(policy, env, True, env_name, 'SAC', '_ante_', j, plot=False)
 
-        for n_epi in range(400):
-            s = env.reset()
-            done = False
-            score_epi = 0
+        simulation.train(memory, pw, q1, q2, q1_target, q2_target, policy_loss_file, critic_loss_file)
 
-            # equivalent d'une traj aka 1 épisode
-            while not done:
-                a, log_prob = policy(torch.from_numpy(
-                    s).float())    # action selection
-                s_prime, r, done, info = env.step([2.0*a.item()])
-                # add of the global state in the replay buffer
-                memory.put((s, a.item(), r/10.0, s_prime, done))
-                score += r
-                score_epi += r
-                s = s_prime
-
-            if memory.size() > 1000:
-                for i in range(20):
-                    # construction d'une fraction de traj
-                    mini_batch = memory.sample(batch_size)
-                    # calcule la cible pour la fonction Q
-                    td_target = calc_target(
-                        policy, q1_target, q2_target, mini_batch)
-                    # entraine la 1ere critique
-                    q1.train_net(td_target, mini_batch)
-                    # entraine la 2e critique
-                    q2.train_net(td_target, mini_batch)
-                    # entraine la politque (= acteur)
-                    entropy = policy.train_net(q1, q2, mini_batch)
-                    q1.soft_update(q1_target)   # update of the 1st target
-                    q2.soft_update(q2_target)   # update of the 2nd target
-            
-            if policy.losses is not None:
-                policy_loss = policy.losses
-                policy_loss_file.write(str(n_epi) + " " + str(policy_loss) + "\n")
-            
-            if q1.losses is not None:
-                critic_loss = q1.losses
-                critic_loss_file.write(str(n_epi) + " " + str(critic_loss) + "\n")
-
-            if score_epi > best_rew*(0.9):
-                best_reward = score_epi
-                pw.save(best_reward)
-
-            if n_epi % print_interval == 0 and n_epi != 0:
-                print("# of episode :{}, avg score : {:.1f} alpha:{:.4f}".format(
-                    n_epi, score/print_interval, policy.log_alpha.exp()))
-                score = 0.0
-        
         plot_policy(policy, env, True, env_name, 'SAC', '_post_', j, plot=False)
         plot_critic(env, env_name, q1, policy, 'SAC', '_post_', j)
-        q1.save_model(
-            'data/critics/' + params.env_name + '#' + params.team_name + '#' + 'SAC' + str(j) + '.pt')
+        q1.save_model('data/critics/{}#{}#SAC{}.pt'.format(params.env_name, params.team_name, str(j)))
 
-    env.close()
+    simulation.env.close()
     chrono.stop()
 
 
