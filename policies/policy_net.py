@@ -5,13 +5,14 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.distributions import Normal
+from policies import GenericNet
 
 
 init_alpha     = 0.01
 lr_alpha        = 0.001  # for automated alpha update
 target_entropy = -1.0 # for automated alpha update
 
-class PolicyNet(nn.Module):
+class PolicyNet(GenericNet):
     def __init__(self, learning_rate):
         super(PolicyNet, self).__init__()
         self.fc1 = nn.Linear(3, 128)
@@ -23,10 +24,13 @@ class PolicyNet(nn.Module):
         self.log_alpha.requires_grad = True
         self.log_alpha_optimizer = optim.Adam([self.log_alpha], lr=lr_alpha)
 
-    def forward(self, x):
-        x = F.relu(self.fc1(x))
-        mu = self.fc_mu(x)
-        std = F.softplus(self.fc_std(x))
+        self.losses = None
+
+    def forward(self, state):
+        #state = torch.from_numpy(state).float()
+        state = F.relu(self.fc1(state))
+        mu = self.fc_mu(state)
+        std = F.softplus(self.fc_std(state))
         dist = Normal(mu, std)
         action = dist.rsample()
         log_prob = dist.log_prob(action)
@@ -44,6 +48,7 @@ class PolicyNet(nn.Module):
         min_q = torch.min(q1_q2, 1, keepdim=True)[0]
 
         loss = -min_q - entropy # for gradient ascent
+        self.losses = loss.data.numpy().astype(float).mean()
         self.optimizer.zero_grad()
         loss.mean().backward()
         self.optimizer.step()
@@ -52,3 +57,24 @@ class PolicyNet(nn.Module):
         alpha_loss = -(self.log_alpha.exp() * (log_prob + target_entropy).detach()).mean()
         alpha_loss.backward()
         self.log_alpha_optimizer.step()
+
+    def select_action(self, state, deterministic=False):
+        """
+        Compute an action or vector of actions given a state or vector of states
+        :param state: the input state(s)
+        :param deterministic: whether the policy should be considered deterministic or not
+        :return: the resulting action(s)
+        """
+        with torch.no_grad():
+            state = torch.from_numpy(state).float()
+            x = F.relu(self.fc1(state))
+            mu = self.fc_mu(x)
+            std = F.softplus(self.fc_std(x))
+            if deterministic:
+                pi_action = mu
+            else:
+                dist = Normal(mu, std)
+                action = dist.rsample()
+                pi_action = action
+            
+            return pi_action.data.numpy().astype(float)

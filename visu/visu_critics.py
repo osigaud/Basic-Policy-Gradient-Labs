@@ -2,7 +2,8 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import random
-from policies import GenericNet, PolicyWrapper
+from policies.generic_net import GenericNet
+from wrappers.policy_wrapper import PolicyWrapper
 from visu.visu_policies import final_show
 from environment import make_env
 
@@ -48,7 +49,7 @@ def plot_critics_from_directory(folder, policy) -> None:
         plot_critic_from_name(folder, critic_file, policy)
 
 
-def plot_critic(env, obs_size, critic, policy, study, default_string, num):
+def plot_critic(env, env_name, critic, policy, study, default_string, num):
     """
     The main entry point for plotting a critic: determine which plotting function to call depending on the
     environment parameters
@@ -60,10 +61,10 @@ def plot_critic(env, obs_size, critic, policy, study, default_string, num):
     :param num: a number to plot several critics from the same configuration
     :return: nothing
     """
-    picturename = str(num) + '_critic_' + study + default_string + simu.env_name + '.pdf'
-    env = simu.env
-    obs_size = simu.obs_size
-    if not simu.discrete:
+    picturename = str(num) + '_critic_' + study + default_string + env_name + '.pdf'
+    #env = simu.env
+    obs_size = env.observation_space.shape[0]
+    if env.action_space.contains(np.array([0.5])):
         if obs_size == 1:
             plot_qfunction_1D(critic, env, plot=False, save_figure=True, figname=picturename, foldername='/plots/')
         elif obs_size == 2:

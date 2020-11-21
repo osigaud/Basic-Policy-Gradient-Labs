@@ -1,5 +1,5 @@
 import gym
-import my_gym  # Necessary to see CartPoleContinuous, though PyCharm does not understand this
+#import my_gym  # Necessary to see CartPoleContinuous, though PyCharm does not understand this
 import numpy as np
 from wrappers import FeatureInverter, PerfWriter
 from gym.wrappers import TimeLimit
