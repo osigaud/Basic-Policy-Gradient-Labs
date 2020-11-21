@@ -34,14 +34,12 @@ class PolicyNet(GenericNet):
         real_log_prob = log_prob - torch.log(1 - torch.tanh(action).pow(2) + 1e-7)
         return real_action, real_log_prob
 
-    def train_net(self, q1, q2, mini_batch):
+    def train_net(self, critic, mini_batch):
         s, a, r, s_prime, done = mini_batch
         a_prime, log_prob = self.forward(s_prime)
         entropy = -self.log_alpha.exp() * log_prob
 
-        q1_val, q2_val = q1(s, a_prime), q2(s, a_prime)
-        q1_q2 = torch.cat([q1_val, q2_val], dim=1)
-        min_q = torch.min(q1_q2, 1, keepdim=True)[0]
+        min_q = critic.forward(s, a_prime)
 
         loss = -min_q - entropy  # for gradient ascent
         self.losses = loss.data.numpy().astype(float).mean()
