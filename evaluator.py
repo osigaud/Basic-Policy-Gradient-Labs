@@ -2,7 +2,8 @@ import os
 
 import numpy as np
 from itertools import count
-from policies import GenericNet, PolicyWrapper
+from policies import GenericNet
+from wrappers import PolicyWrapper
 from environment import make_env
 
 
@@ -31,6 +32,7 @@ def evaluate_pol(env, policy, deterministic):
             if done:
                 scores.append(total_reward)
                 break
+    print()
     scores = np.array(scores)
     # print("team: ", policy.team_name, "mean: ", scores.mean(), "std:", scores.std())
     return scores

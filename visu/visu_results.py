@@ -20,15 +20,24 @@ def plot_data(filename, label):
     :param label: the label to be shown in the plot (a string)
     :return: a curve with some variance and a label, embedded in plt. 
     """
-    print(filename)
+    #print(filename)
     data = pd.read_csv(filename, sep=' ')
     data = pd.read_csv(filename, sep=' ', names=list(range(data.shape[1])))
+    #print(data.shape)
     x1 = list(data.groupby([0]).quantile(0.75)[1])
     x2 = list(data.groupby([0]).quantile(0.25)[1])
     x_mean = list(data.groupby([0]).mean()[1])
     x_std = list(data.groupby([0]).std()[1])
     plt.plot(x_mean, label=label)
     plt.fill_between(list(range(len(x1))), x1, x2, alpha=0.25)
+    
+    if data.shape[1] == 3:
+        x3 = list(data.groupby([0]).quantile(0.75)[2])
+        x4 = list(data.groupby([0]).quantile(0.25)[2])
+        x_mean = list(data.groupby([0]).mean()[2])
+        x_std = list(data.groupby([0]).std()[2])
+        plt.plot(x_mean, label=label)
+        plt.fill_between(list(range(len(x3))), x3, x4, alpha=0.25)
     return x_mean, x_std
 
 
@@ -79,7 +88,7 @@ def exploit_critic_loss_full(params) -> None:
     for i in range(len(study)):
         plot_data(path + "/critic_loss_" + study[i] + '_' + params.env_name + '.txt', "critic loss " + study[i])
 
-    plt.xlabel("Cycles")
+    plt.xlabel("Episode")
     plt.ylabel("Loss")
     plt.legend(loc="upper right")
     plt.title(params.env_name)
@@ -93,7 +102,7 @@ def exploit_policy_loss_full(params) -> None:
     for i in range(len(study)):
         plot_data(path + "/policy_loss_" + study[i] + '_' + params.env_name + '.txt', "policy loss " + study[i])
 
-    plt.xlabel("Cycles")
+    plt.xlabel("Episode")
     plt.ylabel("Loss")
     plt.legend(loc="lower right")
     plt.title(params.env_name)

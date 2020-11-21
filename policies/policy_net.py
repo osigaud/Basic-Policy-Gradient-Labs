@@ -72,5 +72,5 @@ class PolicyNet(GenericNet):
                 dist = Normal(mu, std)
                 action = dist.rsample()
                 pi_action = action
-            pi_action = torch.tanh(pi_action)
+            pi_action = torch.tanh(pi_action) * 2
             return pi_action.data.numpy().astype(float)

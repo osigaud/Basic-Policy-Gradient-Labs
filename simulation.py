@@ -10,7 +10,7 @@ class Simulation:
         self.update_threshold = update_threshold
         self.nb_updates = nb_updates
         self.batch_size = batch_size
-        self.best_rew = -1e30
+        self.best_rew = -500
         self.print_interval = print_interval
 
     def _perform_episode(self, policy, memory):
@@ -19,7 +19,8 @@ class Simulation:
         score = 0
 
         while not done:
-            a, log_prob = policy.forward(torch.from_numpy(s).float())  # action selection
+            a, log_prob = policy.forward(
+                torch.from_numpy(s).float())  # action selection
             s_prime, r, done, info = self.env.step([2.0 * a.item()])
             # add of the global state in the replay buffer
             memory.put((s, a.item(), r / 10.0, s_prime, done))
@@ -30,13 +31,17 @@ class Simulation:
     def _update_networks(self, memory, policy, q1, q2, q1_target, q2_target):
         # Extract a mini-batch from the memory
         mini_batch = memory.sample(self.batch_size)
+
         # Compute the time differential target
         td_target = calc_target(policy, q1_target, q2_target, mini_batch)
+
         # Train both critic networks
         q1.train_net(td_target, mini_batch)
         q2.train_net(td_target, mini_batch)
+
         # Train the actor
         policy.train_net(q1, q2, mini_batch)
+
         # Update the weights of the target critic networks
         q1.soft_update(q1_target)
         q2.soft_update(q2_target)
@@ -50,15 +55,19 @@ class Simulation:
 
             if memory.size() > self.update_threshold:
                 for i in range(self.nb_updates):
-                    self._update_networks(memory, policy, q1, q2, q1_target, q2_target)
+                    self._update_networks(
+                        memory, policy, q1, q2, q1_target, q2_target)
 
             if policy.losses is not None:
                 policy_loss = policy.losses
-                policy_loss_file.write(str(n_epi) + " " + str(policy_loss) + "\n")
+                policy_loss_file.write(
+                    str(n_epi) + " " + str(policy_loss) + "\n")
 
             if q1.losses is not None:
-                critic_loss = q1.losses
-                critic_loss_file.write(str(n_epi) + " " + str(critic_loss) + "\n")
+                critic1_loss = q1.losses
+                critic2_loss = q2.losses
+                critic_loss_file.write(
+                    str(n_epi) + " " + str(critic1_loss) + " " + str(critic2_loss) + "\n")
 
             if score_epi > self.best_rew:
                 self.best_rew = score_epi
@@ -66,5 +75,5 @@ class Simulation:
 
             if n_epi % self.print_interval == 0 and n_epi != 0:
                 print("# of episode :{}, avg score : {:.1f} alpha:{:.4f}".format(n_epi, score / self.print_interval,
-                    policy.log_alpha.exp()))
+                                                                                 policy.log_alpha.exp()))
                 score = 0.0

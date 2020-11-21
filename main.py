@@ -78,8 +78,10 @@ def main(params) -> None:
         simulation.train(memory, pw, q1, q2, q1_target, q2_target, policy_loss_file, critic_loss_file)
 
         plot_policy(policy, env, True, env_name, 'SAC', '_post_', j, plot=False)
-        plot_critic(env, env_name, q1, policy, 'SAC', '_post_', j)
+        plot_critic(env, env_name, q1, policy, 'SAC', '_q1_post_', j)
+        plot_critic(env, env_name, q2, policy, 'SAC', '_q2_post_', j)
         q1.save_model('data/critics/{}#{}#SAC{}.pt'.format(params.env_name, params.team_name, str(j)))
+        q2.save_model('data/critics/{}#{}#SAC{}.pt'.format(params.env_name, params.team_name, str(j)))
 
     simulation.env.close()
     chrono.stop()
