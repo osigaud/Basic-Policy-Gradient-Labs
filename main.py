@@ -14,10 +14,7 @@ from wrappers.policy_wrapper import PolicyWrapper
 
 
 def create_data_folders() -> None:
-    """
-    Create folders where to save output files if they are not already there
-    :return: nothing
-    """
+    """Create folders where to save output files if they are not already there."""
     if not os.path.exists("data/"):
         os.mkdir("./data")
     if not os.path.exists("data/save"):
@@ -31,11 +28,11 @@ def create_data_folders() -> None:
 
 
 def set_files(study_name, env_name):
-    """
-    Create files to save the policy loss and the critic loss
-    :param study_name: the name of the study
-    :param env_name: the name of the environment
-    :return:
+    """Create files to save the policy loss and the critic loss.
+
+    Args:
+        study_name (str): The name of the study.
+        env_name (str): The name of the environment.
     """
     policy_loss_name = "data/save/policy_loss_" + study_name + '_' + env_name + ".txt"
     policy_loss_file = open(policy_loss_name, "w")
@@ -45,16 +42,14 @@ def set_files(study_name, env_name):
 
 
 def main(params) -> None:
-    lr_pi = 0.0005  # params.lr_policy
-    lr_q = 0.001  # params.lr_critics
-    env_name = 'Pendulum-v0'  # params.env_name
+    env = make_env(params.env_name, params.policy_type, params.max_episode_steps, params.env_obs_space_name)
+    env.set_file_name("{}_{}".format(params.gradients[0], params.env_name))
 
-    env = make_env(env_name, 'sac', params.max_episode_steps, params.env_obs_space_name)
-    env.set_file_name('SAC' + '_' + env_name)
+    simulation = Simulation(env, params.nb_trajs, params.update_threshold, params.nb_updates, params.batch_size,
+                            params.print_interval)
+    simulation.rescale_reward = lambda reward: reward / 10
 
-    simulation = Simulation(env)
-
-    policy_loss_file, critic_loss_file = set_files('SAC', env_name)
+    policy_loss_file, critic_loss_file = set_files(params.gradients[0], params.env_name)
 
     chrono = Chrono()
 
@@ -63,19 +58,18 @@ def main(params) -> None:
         memory = ReplayBuffer()
 
         # Initialise the policy/actor
-        policy = PolicyNet(lr_pi, init_alpha=0.02)
-        pw = PolicyWrapper(policy, params.policy_type, env_name, params.team_name, params.max_episode_steps)
+        policy = PolicyNet(params.lr_actor, params.init_alpha, params.lr_alpha, params.target_entropy_alpha)
+        pw = PolicyWrapper(policy, params.policy_type, params.env_name, params.team_name, params.max_episode_steps)
         # Initialise the critics
-        critic = DoubleQNet(lr_q)
+        critic = DoubleQNet(params.lr_critic,params.gamma, params.tau)
 
-        plot_policy(policy, env, True, env_name, 'SAC', '_ante_', j, plot=False)
+        plot_policy(policy, env, True, params.env_name, params.study_name, '_ante_', j, plot=False)
 
-        simulation.train(memory, pw, critic, policy_loss_file,
-                         critic_loss_file)
+        simulation.train(memory, pw, critic, policy_loss_file, critic_loss_file)
 
-        plot_policy(policy, env, True, env_name, 'SAC', '_post_', j, plot=False)
-        plot_critic(env, env_name, critic.q1, policy, 'SAC', '_q1_post_', j)
-        plot_critic(env, env_name, critic.q2, policy, 'SAC', '_q2_post_', j)
+        plot_policy(policy, env, True, params.env_name, params.study_name, '_post_', j, plot=False)
+        plot_critic(env, params.env_name, critic.q1, policy, params.study_name, '_q1_post_', j)
+        plot_critic(env, params.env_name, critic.q2, policy, params.study_name, '_q2_post_', j)
         critic.q1.save_model('data/critics/{}#{}#SAC{}.pt'.format(params.env_name, params.team_name, str(j)))
         critic.q2.save_model('data/critics/{}#{}#SAC{}.pt'.format(params.env_name, params.team_name, str(j)))
 

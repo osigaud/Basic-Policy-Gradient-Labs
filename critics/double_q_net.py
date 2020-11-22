@@ -8,16 +8,16 @@ class DoubleQNet:
         """Build a double Q network.
 
         Args:
-            learning_rate (float): The learning for both Q networks.
+            learning_rate (float): The learning rate for both Q networks.
             gamma (float): The reward decay.
             tau (float): The rate between 0 and 1 used to update the target networks.
         """
         self.gamma = gamma
 
-        self.q1 = QNet(learning_rate, gamma, tau)
-        self.q2 = QNet(learning_rate, gamma, tau)
-        self.q1_target = QNet(learning_rate, gamma, tau)
-        self.q2_target = QNet(learning_rate, gamma, tau)
+        self.q1 = QNet(learning_rate, tau)
+        self.q2 = QNet(learning_rate, tau)
+        self.q1_target = QNet(learning_rate)
+        self.q2_target = QNet(learning_rate)
         self.q1_target.load_state_dict(self.q1.state_dict())
         self.q2_target.load_state_dict(self.q2.state_dict())
 

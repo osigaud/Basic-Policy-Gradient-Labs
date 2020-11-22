@@ -20,6 +20,7 @@ class Simulation:
         self.batch_size = batch_size
         self.best_rew = -500
         self.print_interval = print_interval
+        self.rescale_reward = lambda reward: reward
 
     def _perform_episode(self, policy, memory=None):
         """Let the policy perform one episode.
@@ -42,7 +43,7 @@ class Simulation:
             next_state, reward, is_done, _ = self.env.step([2.0 * action.item()])
             # add of the global state in the replay buffer
             if memory is not None:
-                memory.put((state, action.item(), reward / 10.0, next_state, is_done))
+                memory.put((state, action.item(), self.rescale_reward(reward), next_state, is_done))
             score += reward
             state = next_state
         return score
@@ -82,12 +83,12 @@ class Simulation:
 
             if policy.losses is not None:
                 policy_loss = policy.losses
-                policy_loss_file.write(str(episode) + " " + str(policy_loss) + "\n")
+                policy_loss_file.write("{} {}\n".format(episode, policy_loss))
 
             if critic.q1.losses is not None:
                 critic1_loss = critic.q1.losses
                 critic2_loss = critic.q2.losses
-                critic_loss_file.write(str(episode) + " " + str(critic1_loss) + " " + str(critic2_loss) + "\n")
+                critic_loss_file.write("{} {} {}\n".format(episode, critic1_loss, critic2_loss))
 
             if score_episode > self.best_rew:
                 self.best_rew = score_episode

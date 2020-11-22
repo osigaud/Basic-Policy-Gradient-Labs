@@ -1,10 +1,11 @@
+from itertools import count
 import os
 
 import numpy as np
-from itertools import count
+
+from environment import make_env
 from policies import GenericNet
 from wrappers import PolicyWrapper
-from environment import make_env
 
 
 def evaluate_pol(env, policy, deterministic):
@@ -17,7 +18,7 @@ def evaluate_pol(env, policy, deterministic):
     """
     scores = []
     for i in range(900):
-        print("Iteration {} out of 900".format(i+1), end="\r")
+        print("Iteration {} out of 900".format(i + 1), end="\r")
         state = env.reset()
         # env.render(mode='rgb_array')
         # print("new episode")
@@ -42,6 +43,7 @@ class Evaluator:
     """
     A class to evaluate a set of policies stored into the same folder and ranking them accordin to their scores
     """
+
     def __init__(self):
         self.env_dict = {}
         self.score_dict = {}
