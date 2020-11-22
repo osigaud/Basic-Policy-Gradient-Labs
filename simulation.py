@@ -1,5 +1,5 @@
 import torch
-
+import numpy as np
 
 class Simulation:
     def __init__(self, env, nb_episodes=400, update_threshold=1000, nb_updates=20, batch_size=32, print_interval=20):
@@ -21,6 +21,7 @@ class Simulation:
         self.best_rew = -500
         self.print_interval = print_interval
         self.rescale_reward = lambda reward: reward
+        self.nb_evaluation = 20
 
     def _perform_episode(self, policy, memory=None):
         """Let the policy perform one episode.
@@ -39,7 +40,7 @@ class Simulation:
         score = 0
 
         while not is_done:
-            action, log_prob = policy.forward(torch.from_numpy(state).float())  # action selection
+            action, _ = policy.forward(torch.from_numpy(state).float())  # action selection
             next_state, reward, is_done, _ = self.env.step([action.item()])
             # add of the global state in the replay buffer
             if memory is not None:
@@ -61,6 +62,24 @@ class Simulation:
         critic.train_net(td_target, mini_batch)  # Train both critic networks
         policy.train_net(critic, mini_batch)  # Train the actor
 
+    def _evaluate_policy(self, policy):
+        """Evaluate a policy over a batch of episodes.
+
+        Args:
+            policy (policies.PolicyNet): The policy to evaluate
+
+        Returns:
+            int: The mediane score of the policy.
+        """
+        with torch.no_grad():
+            scores = []
+            for _ in range(self.nb_evaluation):
+                scores.append(self._perform_episode(policy))
+            scores = np.array(scores)
+            return np.mean(scores)
+
+
+
     def train(self, memory, policy_wrapper, critic, policy_loss_file, critic_loss_file):
         """Train the actor and the critic using the given memory.
 
@@ -71,6 +90,7 @@ class Simulation:
             policy_loss_file: The opened file to store the loss of the policy
             critic_loss_file: The opened file to store the loss of the critic
         """
+        self.best_rew = -300
         score = 0.0
         policy = policy_wrapper.policy
         for episode in range(self.nb_episodes):
@@ -78,7 +98,7 @@ class Simulation:
             score += score_episode
 
             if memory.size() > self.update_threshold:
-                for i in range(self.nb_updates):
+                for _ in range(self.nb_updates):
                     self._update_networks(memory, policy, critic)
 
             if policy.losses is not None:
@@ -90,9 +110,14 @@ class Simulation:
                 critic2_loss = critic.q2.losses
                 critic_loss_file.write("{} {} {}\n".format(episode, critic1_loss, critic2_loss))
 
-            if score_episode > self.best_rew:
-                self.best_rew = score_episode
-                policy_wrapper.save(self.best_rew)
+            if 4 * episode > 3 * self.nb_episodes:
+                self.env.set_reward_flag(False)
+                policy_score = self._evaluate_policy(policy)
+                if 10 * policy_score > 11 * self.best_rew:
+                    if policy_score > self.best_rew:
+                        self.best_rew = policy_score
+                    policy_wrapper.save(self.best_rew)
+                self.env.set_reward_flag(True)
 
             if episode % self.print_interval == 0 and episode != 0:
                 print("# of episode :{}, avg score : {:.1f} alpha:{:.4f}".format(episode, score / self.print_interval,

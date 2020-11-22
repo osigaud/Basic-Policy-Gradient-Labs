@@ -60,6 +60,7 @@ def main(params) -> None:
         # Initialise the policy/actor
         policy = PolicyNet(params.lr_actor, params.init_alpha, params.lr_alpha, params.target_entropy_alpha)
         pw = PolicyWrapper(policy, params.policy_type, params.env_name, params.team_name, params.max_episode_steps)
+        pw.duration_flag = False
         # Initialise the critics
         critic = DoubleQNet(params.lr_critic,params.gamma, params.tau)
 
