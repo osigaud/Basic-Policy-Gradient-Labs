@@ -40,7 +40,7 @@ class Simulation:
 
         while not is_done:
             action, log_prob = policy.forward(torch.from_numpy(state).float())  # action selection
-            next_state, reward, is_done, _ = self.env.step([2.0 * action.item()])
+            next_state, reward, is_done, _ = self.env.step([action.item()])
             # add of the global state in the replay buffer
             if memory is not None:
                 memory.put((state, action.item(), self.rescale_reward(reward), next_state, is_done))
