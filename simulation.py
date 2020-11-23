@@ -22,6 +22,7 @@ class Simulation:
         self.print_interval = print_interval
         self.rescale_reward = lambda reward: reward
         self.nb_evaluation = 20
+        self.save_best_policy = True
 
     def _perform_episode(self, policy, memory=None):
         """Let the policy perform one episode.
@@ -110,7 +111,7 @@ class Simulation:
                 critic2_loss = critic.q2.losses
                 critic_loss_file.write("{} {} {}\n".format(episode, critic1_loss, critic2_loss))
 
-            if 4 * episode > 3 * self.nb_episodes:
+            if self.save_best_policy and 4 * episode > 3 * self.nb_episodes:
                 self.env.set_reward_flag(False)
                 policy_score = self._evaluate_policy(policy)
                 if 10 * policy_score > 11 * self.best_rew:
