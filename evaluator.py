@@ -57,12 +57,14 @@ class Evaluator:
                 env = make_env(pw.env_name, pw.policy_type, pw.max_steps)
                 env.set_reward_flag(False)
                 env.set_duration_flag(False)
+                env.seed(42)
                 scores = evaluate_pol(env, policy, False)
                 self.score_dict[pw.env_name][scores.mean()] = [pw.team_name, scores.std()]
             else:
                 env = make_env(pw.env_name, pw.policy_type, pw.max_steps)
                 env.set_reward_flag(False)
                 env.set_duration_flag(False)
+                env.seed(42)
                 self.env_dict[pw.env_name] = env
                 scores = evaluate_pol(env, policy, False)
                 tmp_score_dict = {scores.mean(): [pw.team_name, scores.std()]}
