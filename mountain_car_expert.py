@@ -26,7 +26,7 @@ def perform_expert_episodes_bangbang(simu, batch, nb_trajs, render=False):
             state, reward, done = simu.take_step(state, action, episode, render)
 
         for t in count():
-            action = [1]
+            action = [2]
             state, reward, done = simu.take_step(state, action, episode, render)
 
             if done:
