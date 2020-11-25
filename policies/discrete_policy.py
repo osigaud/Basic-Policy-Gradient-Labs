@@ -101,6 +101,6 @@ class DiscretePolicy(GenericNet):
         """
         action = torch.FloatTensor(action)
         proposed_action = self.forward(state)
-        loss = func.mse_loss(proposed_action, action)
+        loss = func.cross_entropy(proposed_action, action.flatten().long())
         self.update(loss)
         return loss
