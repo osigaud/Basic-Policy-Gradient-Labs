@@ -50,6 +50,7 @@ class ContinuousCartPoleEnv(gym.Env):
         return [seed]
 
     def step(self, action):
+        assert not hasattr(action, "__len__"), 'action should be a scalar'
         state = self.state
         x, x_dot, theta, theta_dot = state
         force = min(max(action, -1.0), 1.0)*self.force_max
@@ -87,7 +88,7 @@ class ContinuousCartPoleEnv(gym.Env):
     def reset(self):
         self.state = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))
         self.steps_beyond_done = None
-        return np.array(self.state)
+        return self.state
 
     def render(self, mode='human', close=False):
         if close:

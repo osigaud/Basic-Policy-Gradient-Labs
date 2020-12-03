@@ -75,7 +75,7 @@ class BernoulliPolicy(GenericNet):
         reward = torch.FloatTensor(reward)
         probs = self.forward(state)
         m = Bernoulli(probs)
-        loss = -m.log_prob(action) * reward  # Negative score function x reward
+        loss = -m.log_prob(action).sum(dim=-1) * reward  # Negative score function x reward
         self.update(loss)
         return loss
 

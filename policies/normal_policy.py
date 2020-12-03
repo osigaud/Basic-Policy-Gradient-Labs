@@ -30,7 +30,7 @@ class NormalPolicy(GenericNet):
         state = self.relu(self.fc1(state))
         state = self.relu(self.fc2(state))
         mu = self.fc_mu(state)
-        std = 1.5  # 20*self.softplus(self.fc_std(state))
+        std = 2 # 20*(self.fc_std(state))
         return mu, std
 
     def select_action(self, state, deterministic=False):
@@ -61,7 +61,7 @@ class NormalPolicy(GenericNet):
         reward = torch.FloatTensor(reward) 
         mu, std = self.forward(state)
         # Negative score function x reward
-        loss = -Normal(mu, std).log_prob(action) * reward  
+        loss = -Normal(mu, std).log_prob(action).sum(dim=-1) * reward
         self.update(loss)
         return loss
 

@@ -5,6 +5,10 @@ from wrappers import FeatureInverter, BinaryShifter, BinaryShifterDiscrete, Acti
     PerfWriter, PendulumWrapper, MountainCarContinuousWrapper
 from gym.wrappers import TimeLimit
 
+# to see the list of available gym environments, type:
+# from gym import envs
+# print(envs.registry.all())
+
 def make_env(env_name, policy_type, max_episode_steps, env_obs_space_name=None):
     """
     Wrap the environment into a set of wrappers depending on some hyper-parameters
@@ -17,8 +21,8 @@ def make_env(env_name, policy_type, max_episode_steps, env_obs_space_name=None):
     """
     env = gym.make(env_name)
     # tests whether the environment is discrete or continuous
-    if not env.action_space.contains(np.array([0.5])):
-        assert policy_type == "bernoulli" or policy_type =="discrete", 'cannot run a continuous action policy in a discrete action environment'
+    # if not env.action_space.contains(np.array([0.5])):
+    #    assert policy_type == "bernoulli" or policy_type =="discrete", 'cannot run a continuous action policy in a discrete action environment'
 
     if max_episode_steps is not None:
         env = TimeLimit(env, max_episode_steps)
@@ -50,7 +54,4 @@ def make_env(env_name, policy_type, max_episode_steps, env_obs_space_name=None):
     print(env)
     return env
 
-# to see the list of available gym environments, type:
-# from gym import envs
-# print(envs.registry.all())
 

@@ -99,7 +99,7 @@ class SquashedGaussianPolicy(GenericNet):
         # Negative score function x reward
         # loss = -Normal(mu, std).log_prob(action) * reward
         normal_distribution = Normal(mu, std)
-        loss = - log_prob(normal_distribution, act) * rwd
+        loss = - log_prob(normal_distribution, act).sum(dim=-1) * rwd
         self.update(loss)
         return loss
 

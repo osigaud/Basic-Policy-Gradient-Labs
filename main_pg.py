@@ -49,9 +49,7 @@ def study_pg(params) -> None:
     :param params: the parameters of the study
     :return: nothing
     """
-    #### MODIF : added discrete
     assert params.policy_type in ['bernoulli', 'normal', 'squashedGaussian', 'discrete'], 'unsupported policy type'
-    ####
     chrono = Chrono()
     # cuda = torch.device('cuda')
     study = params.gradients
@@ -64,7 +62,6 @@ def study_pg(params) -> None:
             simu.env.reinit()
             if params.policy_type == "bernoulli":
                 policy = BernoulliPolicy(simu.obs_size, 24, 36, 1, params.lr_actor)
-            #### MODIF : added the discrete policy
             elif params.policy_type == "discrete":
                 if isinstance(simu.env.action_space , gym.spaces.box.Box):
                     nb_actions = int(simu.env.action_space.high[0] - simu.env.action_space.low[0] +1)
@@ -72,7 +69,6 @@ def study_pg(params) -> None:
                 else :
                     nb_actions = simu.env.action_space.n
                 policy = DiscretePolicy(simu.obs_size, 24, 36, nb_actions, params.lr_actor)
-            ####
             elif params.policy_type == "normal":
                 policy = NormalPolicy(simu.obs_size, 24, 36, 1, params.lr_actor)
             elif params.policy_type == "squashedGaussian":
@@ -104,6 +100,5 @@ if __name__ == '__main__':
     args = get_args()
     print(args)
     create_data_folders()
-    # args.gradients = ['sum']
     study_pg(args)
     plot_results(args)
