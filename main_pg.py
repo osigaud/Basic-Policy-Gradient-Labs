@@ -1,7 +1,9 @@
 # started from Finspire13 /pytorch-policy-gradient-example
 
 import os
-# import torch
+import random
+import numpy as np
+import torch
 from chrono import Chrono
 from simu import make_simu_from_params
 from policies import BernoulliPolicy, NormalPolicy, SquashedGaussianPolicy, DiscretePolicy, PolicyWrapper
@@ -12,6 +14,10 @@ from visu.visu_policies import plot_policy
 from visu.visu_results import plot_results
 import gym
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+torch.manual_seed(0)
+np.random.seed(0)
+random.seed(0)
 
 def create_data_folders() -> None:
     """

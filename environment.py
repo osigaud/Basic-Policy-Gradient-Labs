@@ -9,7 +9,7 @@ from gym.wrappers import TimeLimit
 # from gym import envs
 # print(envs.registry.all())
 
-def make_env(env_name, policy_type, max_episode_steps, env_obs_space_name=None):
+def make_env(env_name, policy_type, max_episode_steps, reward_shift, env_obs_space_name=None):
     """
     Wrap the environment into a set of wrappers depending on some hyper-parameters
     Used so that most environments can be used with the same policies and algorithms
@@ -45,12 +45,12 @@ def make_env(env_name, policy_type, max_episode_steps, env_obs_space_name=None):
             env = BinaryShifterDiscrete(env)
 
     if env_name == "Pendulum-v0":
-        env = PendulumWrapper(env)
+        env = PendulumWrapper(env, reward_shift)
 
     if env_name == "MountainCarContinuous-v0":
-        env = MountainCarContinuousWrapper(env)
+        env = MountainCarContinuousWrapper(env, reward_shift)
 
-    env = PerfWriter(env)
+    env = PerfWriter(env, reward_shift)
     print(env)
     return env
 

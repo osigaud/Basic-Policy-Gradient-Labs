@@ -33,6 +33,7 @@ def get_args():
     parser.add_argument('--env_name', type=str, default='CartPoleContinuous-v0', help='the environment name')
     parser.add_argument('--env_obs_space_name', type=str, default=["pos", "angle"])  # ["pos", "angle", "vx", "v angle"]
     parser.add_argument('--render', type=bool, default=False, help='visualize the run or not')
+    parser.add_argument('--reward_shift', type=float, default=0.0, help='reward normalization')
     # study settings
     parser.add_argument('--study_name', type=str, default='pg', help='study name: pg, regress, nstep')
     parser.add_argument('--critic_update_method', type=str, default="dataset", help='critic update method: batch or dataset')

@@ -96,10 +96,9 @@ class SquashedGaussianPolicy(GenericNet):
         act = torch.FloatTensor(action)
         rwd = torch.FloatTensor(reward)
         mu, std = self.forward(state)
-        # Negative score function x reward
-        # loss = -Normal(mu, std).log_prob(action) * reward
-        normal_distribution = Normal(mu, std)
-        loss = - log_prob(normal_distribution, act).sum(dim=-1) * rwd
+        pi_distribution = Normal(mu, std)
+
+        loss = - log_prob(pi_distribution, act).sum(dim=-1) * rwd
         self.update(loss)
         return loss
 

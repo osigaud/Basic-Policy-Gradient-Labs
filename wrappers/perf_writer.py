@@ -13,7 +13,7 @@ class PerfWriter(gym.Wrapper):
     Files are saved in "./data/save/"
     
     """
-    def __init__(self, env):
+    def __init__(self, env, shift):
         super(PerfWriter, self).__init__(env)
 
         self.duration = 0
@@ -23,6 +23,7 @@ class PerfWriter(gym.Wrapper):
         self.duration_flag = True
         self.duration_file = None
         self.reward_file = None
+        self.reward_shift = shift
 
         self.directory = os.getcwd() + '/data/save/'
         if not os.path.exists(self.directory):
@@ -38,7 +39,7 @@ class PerfWriter(gym.Wrapper):
         self.total_reward += reward
         if done:
             if self.reward_flag:
-                self.reward_file.write(str(self.num_episode) + ' ' + str(self.total_reward) + '\n')
+                self.reward_file.write(str(self.num_episode) + ' ' + str(self.total_reward - self.reward_shift*self.duration) + '\n')
             if self.duration_flag:
                 self.duration_file.write(str(self.num_episode) + ' ' + str(self.duration) + '\n')
         return observation, reward, done, info
